@@ -4110,6 +4110,7 @@ class NoteMarkSystem {
         this.cleaner = new NoteMarkSystemCleaner(this);
         this.categorizedMarks = null;
         this.markStats = null;
+        this._isRestoring = false;
     }
     
     restart() {
@@ -4369,7 +4370,7 @@ class NoteMarkSystem {
         }
         
         const range = selection.getRangeAt(0);
-        const selectedText = selection.toString().trim();
+        const selectedText = selection.toString();  // 不要用 .trim()
         
         if (!selectedText) {
             showMessage('没有选中文本', 'error');
@@ -4385,6 +4386,9 @@ class NoteMarkSystem {
             return;
         }
         
+        // 保存原始选中文本（包含换行符，用于恢复时重建结构）
+        markData.originalText = selectedText;
+        
         const success = this.createMarkAtPositionForApply(range, selectedText, markData);
         
         if (success) {
@@ -4399,9 +4403,9 @@ class NoteMarkSystem {
                 markData._sourceNoteId = this.editingNoteId;
                 const inputEvent = new Event('input', { bubbles: true });
                 editorContent.dispatchEvent(inputEvent);
-                setTimeout(() => { this.saveEnhancedMark(markData); }, 300);
+                // 注意：这里不需要再调用 saveEnhancedMark，因为 createMarkAtPositionForApply 内部已经调用了
             } else {
-                this.saveEnhancedMark(markData);
+                // 注意：这里不需要再调用 saveEnhancedMark，因为 createMarkAtPositionForApply 内部已经调用了
             }
             
             let message = '';
@@ -4429,57 +4433,76 @@ class NoteMarkSystem {
 }
 
     createMarkAtPositionForApply(range, selectedText, markData) {
-        try {
-            const { type, htmlTag } = markData;
-            const startNode = range.startContainer;
-            if (type === 'html-tag' && htmlTag && ['h1','h2','h3','h4','h5','h6'].includes(htmlTag)) {
-                if (startNode.parentNode && startNode.parentNode.tagName === 'DIV' && startNode.parentNode.textContent.trim() === selectedText) {
-                    const div = startNode.parentNode;
-                    const heading = document.createElement(htmlTag);
-                    heading.textContent = selectedText;
-                    heading.setAttribute('data-mark-id', markData.id);
-                    heading.className = 'mark';
-                    this.bindMarkEvents(heading, type);
-                    div.parentNode.replaceChild(heading, div);
-                    this.saveEnhancedMark(markData);
-                    return true;
-                }
+    try {
+        const { type, htmlTag } = markData;
+        let element;
+        
+        if (selectedText.includes('\n')) {
+            const lines = selectedText.split('\n');
+            const container = document.createElement('div');
+            container.className = `mark mark-${type}`;
+            container.setAttribute('data-mark-id', markData.id);
+            
+            for (let i = 0; i < lines.length; i++) {
+                const lineDiv = document.createElement('div');
+                lineDiv.textContent = lines[i] || ' ';
+                container.appendChild(lineDiv);
             }
-            let element;
-            if (type === 'html-tag' && htmlTag) {
-                if (['h1','h2','h3','h4','h5','h6'].includes(htmlTag)) {
-                    element = document.createElement(htmlTag);
-                    element.textContent = selectedText;
-                    element.setAttribute('data-mark-id', markData.id);
-                    element.className = 'mark';
-                } else {
-                    element = document.createElement('span');
-                    element.setAttribute('data-mark-id', markData.id);
-                    element.className = 'mark';
-                    const htmlElement = document.createElement(htmlTag);
-                    htmlElement.textContent = selectedText;
-                    element.appendChild(htmlElement);
-                    if (htmlTag === 'u') {
-                        setTimeout(() => {
-                            if (window.convertSingleUnderline) window.convertSingleUnderline(htmlElement);
-                        }, 10);
-                    }
-                }
-            } else {
-                element = document.createElement('span');
-                element.setAttribute('data-mark-id', markData.id);
-                element.className = `mark mark-${type}`;
-                element.textContent = selectedText;
-            }
+            
+            element = container;
+            markData.text = selectedText;
+            
             this.bindMarkEvents(element, type);
             range.deleteContents();
             range.insertNode(element);
             this.saveEnhancedMark(markData);
             return true;
-        } catch (error) {
-            return false;
+        } else if (type === 'html-tag' && htmlTag && ['h1','h2','h3','h4','h5','h6'].includes(htmlTag)) {
+            const startNode = range.startContainer;
+            if (startNode.parentNode && startNode.parentNode.tagName === 'DIV' && startNode.parentNode.textContent.trim() === selectedText) {
+                const div = startNode.parentNode;
+                const heading = document.createElement(htmlTag);
+                heading.textContent = selectedText;
+                heading.setAttribute('data-mark-id', markData.id);
+                heading.className = 'mark';
+                this.bindMarkEvents(heading, type);
+                div.parentNode.replaceChild(heading, div);
+                this.saveEnhancedMark(markData);
+                return true;
+            }
+            element = document.createElement(htmlTag);
+            element.textContent = selectedText;
+            element.setAttribute('data-mark-id', markData.id);
+            element.className = 'mark';
+        } else if (type === 'html-tag' && htmlTag) {
+            element = document.createElement('span');
+            element.setAttribute('data-mark-id', markData.id);
+            element.className = 'mark';
+            const htmlElement = document.createElement(htmlTag);
+            htmlElement.textContent = selectedText;
+            element.appendChild(htmlElement);
+            if (htmlTag === 'u') {
+                setTimeout(() => {
+                    if (window.convertSingleUnderline) window.convertSingleUnderline(htmlElement);
+                }, 10);
+            }
+        } else {
+            element = document.createElement('span');
+            element.setAttribute('data-mark-id', markData.id);
+            element.className = `mark mark-${type}`;
+            element.textContent = selectedText;
         }
+        
+        this.bindMarkEvents(element, type);
+        range.deleteContents();
+        range.insertNode(element);
+        this.saveEnhancedMark(markData);
+        return true;
+        
+    } catch (error) {
+        return false;
     }
+}
 
     getTextNodeFromElement(element) {
         const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
@@ -4488,7 +4511,6 @@ class NoteMarkSystem {
     
     saveEnhancedMark(markData) {
     try {
-        // 简化：保存标记总是使用本地存储，不再区分数据源
         let currentMarks = this.storage.getAllNoteMarks();
         
         const existingIndex = currentMarks.findIndex(m => m.id === markData.id);
@@ -4496,7 +4518,11 @@ class NoteMarkSystem {
             const originalTimestamp = currentMarks[existingIndex].timestamp;
             currentMarks[existingIndex] = { ...markData, timestamp: originalTimestamp };
         } else {
-            currentMarks.push({ ...markData, timestamp: new Date().toISOString() });
+            const saveData = { ...markData };
+            if (markData.originalText) {
+                saveData.text = markData.originalText;
+            }
+            currentMarks.push({ ...saveData, timestamp: new Date().toISOString() });
         }
         
         const success = this.storage.saveAllNoteMarks(currentMarks);
@@ -4505,11 +4531,9 @@ class NoteMarkSystem {
             const shouldBeCurrent = markData.text && document.body.textContent.includes(markData.text);
             
             if (this.categorizedMarks) {
-                // 从分类数据中移除旧标记
                 this.categorizedMarks.currentCardMarks = this.categorizedMarks.currentCardMarks.filter(m => m.id !== markData.id);
                 this.categorizedMarks.otherCardMarks = this.categorizedMarks.otherCardMarks.filter(m => m.id !== markData.id);
                 
-                // 根据是否在当前卡片中重新分类
                 if (shouldBeCurrent) {
                     this.categorizedMarks.currentCardMarks.push(markData);
                 } else {
@@ -4517,7 +4541,6 @@ class NoteMarkSystem {
                 }
             }
             
-            // 处理嵌入式标记的特殊逻辑
             if (markData._embedded === true && markData._sourceNoteId) {
                 const sourceNote = currentMarks.find(m => m.id === markData._sourceNoteId);
                 if (sourceNote && sourceNote.text && document.body.textContent.includes(sourceNote.text)) {
@@ -4534,7 +4557,6 @@ class NoteMarkSystem {
                 }
             }
             
-            // 刷新笔记面板显示
             const notesPanel = document.getElementById('ankiNotesPanel');
             if (notesPanel && notesPanel.classList.contains('popup-visible')) {
                 this.operations.refreshNotesDisplay(this.lastSearchTerm);
@@ -4712,6 +4734,10 @@ bindMarkEvents(markElement, type) {
     }
     
     restoreAndCategorizeMarks() {
+    if (this._isRestoring) {
+        return { currentCardMarks: [], otherCardMarks: [], restoredIds: [] };
+    }
+    this._isRestoring = true;
     // ===== 1. 临时移除 NotesPanel（放在try外部）=====
     const panel = document.getElementById('ankiNotesPanel');
     const panelParent = panel?.parentNode;
@@ -4788,7 +4814,7 @@ bindMarkEvents(markElement, type) {
                     
                     // 精确匹配order
                     if (matchCount === order) {
-                        if (this.RestoreNoteMarks(node, pos, text.length, mark)) {
+                        if (this.RestoreNoteMarks(markData)) {
                             currentCardMarks.push(mark);
                             restoredIds.push(mark.id);
                             found = true;
@@ -4802,7 +4828,7 @@ bindMarkEvents(markElement, type) {
             
             // 第二阶段：模糊匹配（如果精确匹配失败但文本存在）
             if (!found && matchCount > 0 && lastMatchNode) {
-                if (this.RestoreNoteMarks(lastMatchNode, lastMatchPos, text.length, mark)) {
+                if (this.RestoreNoteMarks(markData)) {
                     currentCardMarks.push(mark);
                     restoredIds.push(mark.id);
                     found = true;
@@ -4849,6 +4875,7 @@ bindMarkEvents(markElement, type) {
         return { currentCardMarks: [], otherCardMarks: [], restoredIds: [] };
         
     } finally {
+        this._isRestoring = false;
         // ===== 9. 无论成功还是失败，都要恢复面板 =====
         if (panelRemoved && panelParent) {
             try {
@@ -5180,67 +5207,112 @@ bindMarkEvents(markElement, type) {
         }
     }
     
-    RestoreNoteMarks(textNode, offset, length, markData) {
-        try {
-            const { id, type, text, htmlTag } = markData;
-            const markedText = textNode.textContent.substring(offset, offset + length);
-            if (type === 'html-tag' && htmlTag && ['h1','h2','h3','h4','h5','h6'].includes(htmlTag)) {
-                if (textNode.parentNode && textNode.parentNode.tagName === 'DIV' && textNode.parentNode.textContent.trim() === text) {
-                    const div = textNode.parentNode;
-                    const heading = document.createElement(htmlTag);
-                    heading.textContent = text;
-                    heading.setAttribute('data-mark-id', id);
-                    heading.className = 'mark';
-                    this.bindMarkEvents(heading, type);
-                    div.parentNode.replaceChild(heading, div);
-                    return true;
+    RestoreNoteMarks(markData) {
+    try {
+        const { text, order } = markData;
+        
+        if (!text || !text.trim()) return false;
+        
+        // ========== 处理包含换行符的特殊标记 ==========
+        if (text.includes('\n')) {
+            const lines = text.split('\n').filter(line => line.trim());
+            const textNodes = this.getAllTextNodesForMatching();
+            
+            let matchCount = 0;
+            
+            for (let i = 0; i <= textNodes.length - lines.length; i++) {
+                let matched = true;
+                let matchedNodes = [];
+                
+                for (let j = 0; j < lines.length; j++) {
+                    const nodeText = textNodes[i + j].textContent.trim();
+                    const lineText = lines[j].trim();
+                    if (nodeText !== lineText) {
+                        matched = false;
+                        break;
+                    }
+                    matchedNodes.push(textNodes[i + j]);
                 }
-            }
-            let element;
-            if (type === 'html-tag' && htmlTag) {
-                if (['h1','h2','h3','h4','h5','h6'].includes(htmlTag)) {
-                    element = document.createElement(htmlTag);
-                    element.textContent = markedText;
-                    element.setAttribute('data-mark-id', id);
-                    element.className = 'mark';
-                } else {
-                    element = document.createElement('span');
-                    element.setAttribute('data-mark-id', id);
-                    element.className = 'mark';
-                    const htmlElement = document.createElement(htmlTag);
-                    htmlElement.textContent = markedText;
-                    element.appendChild(htmlElement);
-                    if (htmlTag === 'u') {
-                        setTimeout(() => {
-                            if (window.convertSingleUnderline) window.convertSingleUnderline(htmlElement);
-                        }, 10);
+                
+                if (matched) {
+                    matchCount++;
+                    if (matchCount === order) {
+                        return this.mergeNodesToMark(matchedNodes, markData);
                     }
                 }
-            } else {
-                element = document.createElement('span');
-                element.setAttribute('data-mark-id', id);
-                element.className = `mark mark-${type}`;
-                element.textContent = markedText;
             }
-            this.bindMarkEvents(element, type);
-            const beforeText = textNode.textContent.substring(0, offset);
-            const afterText = textNode.textContent.substring(offset + length);
-            if (textNode.parentNode) {
-                const parent = textNode.parentNode;
-                const newNodes = [];
-                if (beforeText) newNodes.push(document.createTextNode(beforeText));
-                newNodes.push(element);
-                if (afterText) newNodes.push(document.createTextNode(afterText));
-                const fragment = document.createDocumentFragment();
-                newNodes.forEach(node => fragment.appendChild(node));
-                parent.replaceChild(fragment, textNode);
-                return true;
-            }
-            return false;
-        } catch (error) {
             return false;
         }
+        
+        // ========== 普通文本精确匹配 ==========
+        const textNodes = this.getAllTextNodesForMatching();
+        
+        let matchCount = 0;
+        let lastMatchNode = null;
+        let lastMatchPos = 0;
+        
+        for (let i = 0; i < textNodes.length; i++) {
+            const node = textNodes[i];
+            const nodeText = node.textContent;
+            let pos = 0;
+            
+            while ((pos = nodeText.indexOf(text, pos)) !== -1) {
+                matchCount++;
+                lastMatchNode = node;
+                lastMatchPos = pos;
+                if (matchCount === order) {
+                    return this.createMarkAtPosition(node, pos, text.length, markData);
+                }
+                pos += text.length;
+            }
+        }
+        
+        if (matchCount > 0 && lastMatchNode) {
+            return this.createMarkAtPosition(lastMatchNode, lastMatchPos, text.length, markData);
+        }
+        
+        return false;
+        
+    } catch (error) {
+        return false;
     }
+}
+
+mergeNodesToMark(nodes, markData) {
+    try {
+        const { id, type, htmlTag, text } = markData;
+        
+        if (document.querySelector(`[data-mark-id="${id}"]`)) {
+            return true;
+        }
+        
+        const range = document.createRange();
+        range.setStartBefore(nodes[0]);
+        range.setEndAfter(nodes[nodes.length - 1]);
+        
+        const lines = text.split('\n');
+        const container = document.createElement('div');
+        container.className = `mark mark-${type}`;
+        container.setAttribute('data-mark-id', id);
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const lineDiv = document.createElement('div');
+            lineDiv.textContent = line || ' ';
+            container.appendChild(lineDiv);
+        }
+        
+        this.bindMarkEvents(container, type);
+        
+        range.deleteContents();
+        range.insertNode(container);
+        
+        return true;
+        
+    } catch (error) {
+        return false;
+    }
+}
     
     showNoteEditor(markElement) {
     // 移除已有笔记预览、笔记面板和编辑器
