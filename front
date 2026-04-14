@@ -4814,7 +4814,7 @@ bindMarkEvents(markElement, type) {
                     
                     // 精确匹配order
                     if (matchCount === order) {
-                        if (this.RestoreNoteMarks(markData)) {
+                        if (this.RestoreNoteMarks(node, pos, text.length, mark)) {
                             currentCardMarks.push(mark);
                             restoredIds.push(mark.id);
                             found = true;
@@ -4828,7 +4828,7 @@ bindMarkEvents(markElement, type) {
             
             // 第二阶段：模糊匹配（如果精确匹配失败但文本存在）
             if (!found && matchCount > 0 && lastMatchNode) {
-                if (this.RestoreNoteMarks(markData)) {
+                if (this.RestoreNoteMarks(lastMatchNode, lastMatchPos, text.length, mark)) {
                     currentCardMarks.push(mark);
                     restoredIds.push(mark.id);
                     found = true;
