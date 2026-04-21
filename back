@@ -1251,19 +1251,20 @@ function scrollToElement() {
 <script>
 $(document).ready(function() {
     var totalMarks = 0, currentMark = 0, tickExecuted = false;
-     /* 同步主题切换按钮文字为当前实际色系（读取 ankiStorage） */
-(function () {
-    var saved = (window.ankiStorage && window.ankiStorage.getConfig('cardTheme')) || '1';
-    var btn = document.getElementById('themeToggle');
-    if (btn) {
-        if (saved === '1') btn.textContent = '豆沙';
-        else if (saved === '2') btn.textContent = '竹露';
-        else if (saved === '3') btn.textContent = '象牙';
-        else if (saved === '4') btn.textContent = '淡雅';
-        else if (saved === '5') btn.textContent = '黛绿';
-        else btn.textContent = '牙色';
-    }
-})();
+    
+    /* 同步主题切换按钮文字为当前实际色系（读取 ankiStorage） */
+    (function () {
+        var saved = (window.ankiStorage && window.ankiStorage.getConfig('cardTheme')) || '1';
+        var btn = document.getElementById('themeToggle');
+        if (btn) {
+            if (saved === '1') btn.textContent = '豆沙';
+            else if (saved === '2') btn.textContent = '竹露';
+            else if (saved === '3') btn.textContent = '象牙';
+            else if (saved === '4') btn.textContent = '淡雅';
+            else if (saved === '5') btn.textContent = '黛绿';
+            else btn.textContent = '牙色';
+        }
+    })();
 
     $('.searchbtn').click(function() {
         toggleSearchBox();
