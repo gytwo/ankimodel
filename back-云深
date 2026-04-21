@@ -1,0 +1,1663 @@
+<template id="ak-back">
+<script>
+  /*
+   * 【主题色系初始化 — 背面】
+   * 与正面采用完全相同的自含式初始化模式。
+   * 背面独立运行此脚本，通过 localStorage (anki_cfg_ 前缀) 读取正面保存的色系偏好，
+   * 实现正背面翻牌后色系记忆互通。
+   */
+  (function () {
+    /* 定义或复用 ankiStorage 模块 */
+    window.ankiStorage = window.ankiStorage || (function () {
+      var P = 'anki_cfg_';
+      return {
+        setConfig: function (k, v) {
+          try { localStorage.setItem(P + k, JSON.stringify(v)); }
+          catch (e) { window['_acfg_' + k] = v; }
+        },
+        getConfig: function (k) {
+          try {
+            var v = localStorage.getItem(P + k);
+            return v !== null ? JSON.parse(v) : undefined;
+          } catch (e) { return window['_acfg_' + k]; }
+        }
+      };
+    })();
+    /* 读取正面保存的色系偏好，立即应用，防止背面渲染时出现闪烁 */
+    var saved = window.ankiStorage.getConfig('cardTheme') || '1';
+    var h = document.documentElement;
+    h.classList.remove('theme-xiangya', 'theme-zhulu');
+    h.classList.add(saved === '2' ? 'theme-zhulu' : 'theme-xiangya');
+  })();
+  </script>
+  <div class="floating" onclick="toggleSearchBox()">{{Deck}}</div>
+  <div class="search-box" id="searchBox">
+    <!-- 第一行：搜索输入框 + 主操作按钮 + 导航 + 计数 -->
+    <div class="sb-row">
+      <input type="text" id="search" placeholder="搜索内容…">
+      <button id="searchButton">搜索</button>
+      <button id="prevMark">↑</button>
+      <div class="search-results" id="searchResults">0/0</div>
+      <button id="nextMark">↓</button>
+    </div>
+    <!-- 第二行：功能按钮区（左:外部搜索/展折，右:主题/清除/收起） -->
+    <div class="sb-row">
+      <button id="externalSearch1">公</button>
+      <button id="externalSearch2">事</button>
+      <button id="xian" style="display:none">全展开</button>
+      <button id="yin" style="display:none">全折叠</button>
+      <span class="sb-spacer"></span>
+      <!-- 主题色系切换按钮：与正面保持一致，点击切换并记忆偏好 -->
+      <button id="themeToggle" onclick="toggleTheme()">象牙笺</button>
+      <button id="clearMarks">❌</button>
+      <button id="hideSearchBox">➖</button>
+    </div>
+  </div>
+  <div class="custom2-button" onclick="custom2ButtonToggle()">伸/缩</div>
+  
+
+  <div class="linkRender">{{cloze:Text}} </div> 
+  {{#导图}}
+  {{/导图}}
+  
+  <!-- (Always) #Hide others on the back side -->
+  
+  
+  <style>
+  
+  
+  
+  cloze2 {
+    display: none;
+  }
+  
+  .cloze cloze2_w {
+    display: none;
+  }
+  
+  .cloze cloze2 {
+    display: none;
+  }
+  
+  </style>
+  
+  <style>
+    cloze2.reveal-cloze2 {
+      display: inline-block;
+    }
+  
+    cloze2_w.reveal-cloze2 {
+      display: none;
+    }
+  
+    .cloze2-toggle {
+      display:none;
+      bottom: 1%;
+      right: 1px;
+      transform: translate(-10%, -50%);
+      background-color: rgba(255, 255, 255, 0);
+      padding: .1px;
+      cursor: pointer;
+      z-index: 1000;
+      border-radius: .1px;
+    }
+  </style>
+  
+  <button class='cloze2-toggle' onclick='toggle()'>.</button>
+  
+  <!-- (Always) /Hide others on the back side -->
+  
+  
+  <script>
+    function toggle(element) {
+                if (!element || !element.getAttribute) {
+                    return;
+                }
+                var classNames = element.getAttribute("data-cloze").match(/cz-\d+/);
+                var clozeClass = classNames ? classNames[0] : null;
+                if (clozeClass) {
+                    var cloze2Class = 'cloze2.' + clozeClass;
+                    var virtualElement = document.createElement("div");
+                    virtualElement.innerHTML = element.getAttribute("data-cloze");
+                    var clozeContentElement = virtualElement.querySelector(cloze2Class);
+                    if (clozeContentElement) {
+                        var clozeContent = clozeContentElement.innerHTML;
+                        element.innerHTML = (element.innerHTML.trim() === clozeContent.trim()) ? "[...]" : clozeContent;
+                    }
+                }
+            }
+  document.querySelectorAll('li.node').forEach(function(node) {
+      
+      var contentDiv = node.querySelector('div.content.mm-editor');
+      
+      if (contentDiv && contentDiv.textContent.trim().startsWith('例')) {
+          
+          // 检查是否有有效的兄弟节点（note mm-editor、包含图片、或image-list/image-item类型）
+          var hasValidSibling = false;
+          var nextSibling = contentDiv.nextElementSibling;
+          
+          while (nextSibling) {
+              // 可能一：存在 note mm-editor 类型的兄弟节点
+              if (nextSibling.classList && nextSibling.classList.contains('note') && nextSibling.classList.contains('mm-editor')) {
+                  hasValidSibling = true;
+                  break;
+              }
+              // 可能二：兄弟节点中存在图片
+              if (nextSibling.querySelector && nextSibling.querySelector('img')) {
+                  hasValidSibling = true;
+                  break;
+              }
+              // 可能三：兄弟节点是image-list或image-item类型
+              if (nextSibling.classList && (nextSibling.classList.contains('image-list') || nextSibling.classList.contains('image-item'))) {
+                  hasValidSibling = true;
+                  break;
+              }
+              nextSibling = nextSibling.nextElementSibling;
+          }
+          
+          // 当存在有效的兄弟节点时才添加可伸缩功能
+          if (hasValidSibling) {
+              var childrenWrapper = document.createElement('div');
+              childrenWrapper.classList.add('children');
+  
+              var nextSibling = contentDiv.nextElementSibling;
+              while (nextSibling) {
+                  
+                  childrenWrapper.appendChild(nextSibling);
+                  nextSibling = contentDiv.nextElementSibling; 
+              }
+  
+              contentDiv.parentNode.insertBefore(childrenWrapper, contentDiv.nextElementSibling);
+          }
+      }
+  });
+  
+      function addToggleOnClick() {
+          
+          var elements = document.querySelectorAll('cloze2_w, cloze2');
+      
+          
+          elements.forEach(function(element) {
+              // 仅针对 cloze2_w / cloze2：点击时按同组 cz-* 切换显隐
+              // 这里显式传入 this，避免 onclick="toggle()" 无参数导致失效
+              element.setAttribute('onclick', 'toggleReveal(this)');
+              // 兜底事件：确保在部分 WebView 中内联 onclick 不稳定时仍可触发
+              element.addEventListener('click', function(event) {
+                  event.stopPropagation();
+                  toggleReveal(event.currentTarget || event.srcElement);
+              });
+          });
+      }
+      
+      
+      addToggleOnClick();
+  function optimizeClozeElements(element) {
+      if (!element) {
+          
+          element = document.body;
+      }
+  
+      
+      let i = 0;
+      while (i < element.children.length) {
+          const child = element.children[i];
+  
+          
+          optimizeClozeElements(child);
+  
+          
+          if (child.tagName && child.tagName.toLowerCase() === 'cloze2') {
+              const cloze2_w = child.querySelector('cloze2_w');
+              const innerCloze2 = child.querySelector('cloze2:not(cloze2_w)');
+  
+              if (cloze2_w && innerCloze2) {
+                  
+                  element.insertBefore(cloze2_w, child);
+                  element.insertBefore(innerCloze2, child);
+  
+                  
+                  while (child.firstChild) {
+                      element.insertBefore(child.firstChild, child);
+                  }
+  
+                  
+                  child.remove();
+                  continue; 
+              }
+          }
+  
+          
+          if (
+              child.tagName &&
+              child.tagName.toLowerCase() === 'cloze2_w' &&
+              i > 0
+          ) {
+              const prevSibling = element.children[i - 1];
+              if (
+                  prevSibling.tagName &&
+                  prevSibling.tagName.toLowerCase() === 'cloze2_w' &&
+                  prevSibling.className === child.className
+              ) {
+                  
+                  child.remove();
+                  continue; 
+              }
+          }
+  
+          i++; 
+      }
+  }
+  
+  
+  optimizeClozeElements();
+  
+    /* 折叠圆圈外圈颜色：夜间模式使用暗色，日间保持原色 */
+    function getCollapsedBulletShadow() {
+      var isNight = document.body && document.body.classList.contains('nightMode');
+      var innerRing = 'rgb(100, 106, 115)';
+      var outerRing = isNight ? 'rgb(58, 58, 58)' : 'rgb(200, 200, 200)';
+      return '0 0 0 2px ' + innerRing + ', 0 0 0 4px ' + outerRing;
+    }
+  
+    function expandAll() {
+        document.querySelectorAll('.bullet').forEach(function(content, index) {
+            var childrenDiv = content.parentElement.querySelector('.children');
+            if (childrenDiv) {
+                childrenDiv.style.display = 'block';
+                content.querySelector('.bullet-dot').style.boxShadow = 'none';
+                content.querySelector('.bullet-dot').style.backgroundColor = 'rgb(100, 106, 115)';
+                saveState(index, true);
+            }
+        });
+    }
+  
+    function collapseAll() {
+        document.querySelectorAll('.bullet').forEach(function(content, index) {
+            var childrenDiv = content.parentElement.querySelector('.children');
+            if (childrenDiv) {
+                if (!childrenDiv.querySelector('span.cloze')) {
+                    childrenDiv.style.display = 'none';
+                    content.querySelector('.bullet-dot').style.boxShadow = getCollapsedBulletShadow();
+                    content.querySelector('.bullet-dot').style.backgroundColor = 'transparent';
+                    saveState(index, false);
+                }
+            }
+        });
+    }
+  
+    function isCurrentlyExpanded() {
+        var allExpanded = true;
+        document.querySelectorAll('.bullet').forEach(function(content) {
+            var childrenDiv = content.parentElement.querySelector('.children');
+            if (childrenDiv && childrenDiv.style.display === 'none') {
+                allExpanded = false;
+            }
+        });
+        return allExpanded;
+    }
+  
+  /* 伸/缩按钮逻辑提取为命名函数，通过 onclick 属性绑定，
+   * 确保在 iOS WKWebView（AnkiMobile）中也能正常触发。
+   * jQuery .click() 对 div 在 iOS 不可靠，统一改为 onclick 方式。 */
+  function custom2ButtonToggle() {
+    var btn = document.querySelector('.custom2-button');
+    if (isCurrentlyExpanded()) {
+        collapseAll();
+        if (btn) btn.textContent = '全伸';
+    } else {
+        expandAll();
+        if (btn) btn.textContent = '全缩';
+    }
+  }
+  
+  
+  function toggleSearchBox() {
+      var searchBox = $('#searchBox');
+      if (searchBox.css('visibility') === 'hidden') {
+          searchBox.css({'visibility': 'visible', 'height': 'auto'});
+      } else {
+          searchBox.css({'visibility': 'hidden', 'height': '0'});
+      }
+  }
+  
+  /*
+   * 主题色系切换函数（背面）
+   * 与正面完全对称，均使用 ankiStorage.setConfig 写入 localStorage，
+   * 无论在哪一面切换色系，下次加载任意面时顶部初始化脚本都能读到最新偏好
+   */
+  function toggleTheme() {
+      var htmlEl = document.documentElement;
+      var isZhulu = htmlEl.classList.contains('theme-zhulu');
+      htmlEl.classList.remove('theme-xiangya', 'theme-zhulu');
+      var newTheme = isZhulu ? '1' : '2';
+      htmlEl.classList.add(newTheme === '2' ? 'theme-zhulu' : 'theme-xiangya');
+      if (window.ankiStorage) {
+          window.ankiStorage.setConfig('cardTheme', newTheme);
+      }
+      var btn = document.getElementById('themeToggle');
+      if (btn) btn.textContent = newTheme === '2' ? '竹露' : '象牙笺';
+  }
+  
+  $(document).ready(function() {
+          var totalMarks = 0; 
+          var currentMark = 0; 
+          var tickExecuted = false;
+  
+          /* 同步主题切换按钮文字（读取 ankiStorage） */
+          (function () {
+              var saved = (window.ankiStorage && window.ankiStorage.getConfig('cardTheme')) || '1';
+              var btn = document.getElementById('themeToggle');
+              if (btn) btn.textContent = saved === '2' ? '竹露' : '象牙笺';
+          })();
+        
+          $('#searchButton').click(function() {
+              if (!tickExecuted) {
+                  tick();         
+          expandAll();    
+          tickExecuted = true; 
+              }
+              
+              var query = $('#search').val();
+              $('body').unmark({
+                  done: function() {
+                      $('body').mark(query, {
+                          'acrossElements': true,
+                          'separateWordSearch': false,
+                          'done': function(count) {
+                              totalMarks = count;
+                              currentMark = count > 0 ? 1 : 0;
+                              updateResults();
+                              if (currentMark > 0) {
+                                  navigateToMark(currentMark);
+                              }
+                          }
+                      });
+                  }
+              });
+          });
+  
+          function updateResults() {
+              $('#searchResults').text(currentMark + '/' + totalMarks);
+          }
+  
+          function navigateMarks(direction) {
+              if (totalMarks === 0) return;
+  
+              if (direction === 'prev') {
+                  currentMark = currentMark > 1 ? currentMark - 1 : totalMarks;
+              } else {
+                  currentMark = currentMark < totalMarks ? currentMark + 1 : 1;
+              }
+  
+              navigateToMark(currentMark);
+              updateResults();
+          }
+  
+          function navigateToMark(index) {
+              $('mark').removeClass('current');
+              var $mark = $('mark').eq(index - 1).addClass('current');
+              
+              var markOffset = $mark.offset().top;
+              var markHeight = $mark.outerHeight();
+              var windowHeight = $(window).height();
+              
+              var scrollTop = markOffset - (windowHeight / 2) + (markHeight / 2);
+              
+              $('html, body').animate({
+                  scrollTop: scrollTop
+              }, 200);
+          }
+  
+          $('#prevMark').click(function() {
+              navigateMarks('prev');
+          });
+  
+          $('#nextMark').click(function() {
+              navigateMarks('next');
+          });
+  
+          $('#clearMarks').click(function() {
+              $('body').unmark();
+              totalMarks = 0;
+              currentMark = 0;
+              updateResults();
+              toggleSearchBox();  
+          });
+  
+          $('#hideSearchBox').click(function() {
+              $('#searchBox').css({'visibility': 'hidden', 'height': '0'}); 
+          });
+  
+          
+          $('#externalSearch1').click(function() {
+              var query = $('#search').val();
+              var url = 'https://www.fenbi.com/spa/tiku/guide/question/search?qType=1&page=0&q=' + encodeURIComponent(query) + '&courseSet=xingce&course=xingce';
+              openUrlInNewTab(url);
+          });
+  
+          $('#externalSearch2').click(function() {
+              var query = $('#search').val();
+              var url = 'https://www.fenbi.com/spa/tiku/guide/question/search?q=' + encodeURIComponent(query) + '&courseSet=sydw&course=syzc';
+              openUrlInNewTab(url);
+          });
+  
+          function openUrlInNewTab(url) {
+              var a = document.createElement('a');
+              a.href = url;
+              a.target = '_blank';
+              a.rel = 'noopener noreferrer';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+          }
+      });
+  
+      
+      function toggleReveal(element) {
+      if (!element || !element.classList) {
+          return;
+      }
+  
+      var className = element.classList[0];  
+      var elements = document.querySelectorAll('.' + className);
+  
+      for (var i = 0; i < elements.length; i++) {
+          if (!(elements[i].tagName.toLowerCase() === 'cloze2' && elements[i].style.display === 'inline')) {
+              elements[i].classList.toggle('reveal-cloze2');
+          }
+      }
+  }
+  
+var czElements = document.querySelectorAll('[class^="cz-"]');
+/* 移动端 iOS 对自定义元素 click 合成不可靠，需显式 touch 事件；
+ * stopPropagation 防冒泡到父级，preventDefault 阻止合成 click 防双重触发。 */
+var _czIsMob = /webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+czElements.forEach(function(element) {
+    element.addEventListener('click', function(event) {
+        
+        event.stopPropagation();
+        
+        var clickedElement = event.currentTarget; 
+        toggleReveal(clickedElement);
+    });
+    if (_czIsMob) {
+        var _czSp = null;
+        element.addEventListener('touchstart', function(e) {
+            _czSp = e.touches.length === 1
+                ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+            e.stopPropagation();
+        });
+        element.addEventListener('touchend', function(e) {
+            if (_czSp && e.changedTouches.length === 1) {
+                var dx = Math.abs(_czSp.x - e.changedTouches[0].clientX);
+                var dy = Math.abs(_czSp.y - e.changedTouches[0].clientY);
+                if (dx < 10 && dy < 10) {
+                    e.preventDefault();
+                    toggleReveal(e.currentTarget || e.srcElement);
+                }
+            }
+            _czSp = null;
+        });
+    }
+});
+       
+       
+      
+      
+      function addMobileClickHandler(selector, callback) {
+          const distanceThreshold = 10;
+          let touchStartPosition = null;
+      
+          document.querySelectorAll(selector).forEach(function(element) {
+              element.addEventListener('touchstart', function(event) {
+                  const touches = event.touches;
+                  if (touches.length === 1) {
+                      const touch = touches[0];
+                      touchStartPosition = {
+                          x: touch.clientX,
+                          y: touch.clientY
+                      };
+                  } else {
+                      touchStartPosition = null;
+                  }
+              });
+      
+              element.addEventListener('touchend', function(event) {
+                  const changedTouches = event.changedTouches;
+                  if (touchStartPosition && changedTouches.length === 1) {
+                      const changedTouch = changedTouches[0];
+                      const touchEndX = changedTouch.clientX;
+                      const touchEndY = changedTouch.clientY;
+                      const diffX = Math.abs(touchStartPosition.x - touchEndX);
+                      const diffY = Math.abs(touchStartPosition.y - touchEndY);
+                      if (diffX < distanceThreshold && diffY < distanceThreshold) {
+                          callback(event);
+                      }
+                  }
+                  touchStartPosition = null;
+              });
+          });
+      }
+  
+      
+      function setupClozeEvents() {
+          if (/webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+              
+              addMobileClickHandler('.cloze', function(event) {
+                  toggle(event.target || event.srcElement);
+              });
+          } else {
+              
+              document.querySelectorAll('.cloze').forEach(function(element) {
+                  element.addEventListener('click', function(event) {
+                      toggle(event.target || event.srcElement);
+                  });
+              });
+          }
+      }
+      
+      
+      setupClozeEvents();
+        
+  
+  
+   function tick() {
+      var elements = document.querySelectorAll('cloze2, cloze2_w');
+      var allHaveRevealClass = true;
+      var hasNonInlineCloze2 = false;
+  
+      elements.forEach(function(element) {
+          var isInlineCloze2 = (element.tagName.toLowerCase() === 'cloze2' && element.style.display === 'inline');
+          var isRevealClass = element.classList.contains('reveal-cloze2');
+  
+          if (!isInlineCloze2) {
+              hasNonInlineCloze2 = true;
+              if (!isRevealClass) {
+                  allHaveRevealClass = false;
+              }
+          }
+      });
+  
+      elements.forEach(function(element) {
+          var isInlineCloze2 = (element.tagName.toLowerCase() === 'cloze2' && element.style.display === 'inline');
+          var isRevealClass = element.classList.contains('reveal-cloze2');
+  
+          if (!isInlineCloze2) {
+              if (allHaveRevealClass) {
+                  if (isRevealClass) {
+                      element.classList.remove('reveal-cloze2');
+                  }
+              } else {
+                  if (!isRevealClass) {
+                      element.classList.add('reveal-cloze2');
+                  }
+              }
+          }
+      });
+  
+        
+      var button = document.querySelector('.custom-button');
+      if (button) {
+          if (button.textContent === '全隐') {
+              button.textContent = '全显';
+          } else {
+              button.textContent = '全隐';
+          }
+      }
+  }
+  
+    
+    
+    
+      
+      setTimeout(function () {
+          var clozeBoxes = document.querySelector('.cloze cloze2_w');
+          if (clozeBoxes) {
+              document.querySelectorAll('cloze2.' + clozeBoxes.className).forEach(function(element) {
+                  element.style.display = 'inline';
+              });
+          }
+      }, 0);
+     
+     
+   
+      function saveState(index, isExpanded) {
+          
+          const deckNameElement = document.querySelector('.floating');
+          if (!deckNameElement) return; 
+          const deckName = deckNameElement.textContent.trim();
+      
+          
+          let allDecksStates = JSON.parse(localStorage.getItem('decksBulletStates')) || {};
+      
+          
+          let currentDeckStates = allDecksStates[deckName] || {};
+      
+          
+          currentDeckStates[index] = isExpanded;
+      
+          
+          allDecksStates[deckName] = currentDeckStates;
+      
+          
+          localStorage.setItem('decksBulletStates', JSON.stringify(allDecksStates));
+      }
+    
+  
+        function loadState(index) {
+          
+            const deckNameElement = document.querySelector('.floating');
+            if (!deckNameElement) return false; 
+            const deckName = deckNameElement.textContent.trim();
+        
+          
+            let allDecksStates = JSON.parse(localStorage.getItem('decksBulletStates')) || {};
+        
+          
+            let savedDeckStates = allDecksStates[deckName];
+        
+          
+            if (!savedDeckStates) {
+                return false;
+            }
+        
+          
+            return savedDeckStates[index] || false;
+        }
+    
+    
+    function expandAll() {
+        document.querySelectorAll('.bullet').forEach(function(content, index) {
+            var childrenDiv = content.parentElement.querySelector('.children');
+            if (childrenDiv) {
+                childrenDiv.style.display = 'block';  
+                
+                content.querySelector('.bullet-dot').style.boxShadow = 'none';
+                content.querySelector('.bullet-dot').style.backgroundColor = 'rgb(100, 106, 115)';
+                saveState(index, true);  
+            }
+        });
+    }
+    
+    
+    document.getElementById('xian').onclick = expandAll;
+    
+    
+    document.getElementById('yin').onclick = function() {
+        document.querySelectorAll('.bullet').forEach(function(content, index) {
+            var childrenDiv = content.parentElement.querySelector('.children');
+            if (childrenDiv) {
+                
+                if (!childrenDiv.querySelector('span.cloze')) {
+                    childrenDiv.style.display = 'none';  
+                    
+                    content.querySelector('.bullet-dot').style.boxShadow = getCollapsedBulletShadow();
+                    content.querySelector('.bullet-dot').style.backgroundColor = 'transparent';
+                    saveState(index, false);  
+                }
+            }
+        });
+    };
+    
+    
+    
+    document.querySelectorAll('.bullet').forEach(function(content, index) {
+        var childrenDiv = content.parentElement.querySelector('.children');
+        
+        if (childrenDiv) {
+            let isExpanded = loadState(index);  
+            
+            if (isExpanded || childrenDiv.querySelector('span.cloze')) {
+                childrenDiv.style.display = 'block';  
+                content.querySelector('.bullet-dot').style.boxShadow = 'none';
+                content.querySelector('.bullet-dot').style.backgroundColor = 'rgb(100, 106, 115)';
+            } else {
+                childrenDiv.style.display = 'none';  
+                content.querySelector('.bullet-dot').style.boxShadow = getCollapsedBulletShadow();
+                content.querySelector('.bullet-dot').style.backgroundColor = 'transparent';
+            }
+    
+            /* 移动端（iOS/Android）的 WebView 对 div.onclick 不可靠，
+             * 且 innerHTML 被替换后 JS 属性会丢失；改用 touchstart+touchend，
+             * 与 addMobileClickHandler 模式一致。桌面端保持 onclick。 */
+            if (/webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                var _bs = null;
+                content.addEventListener('touchstart', function(e) {
+                    _bs = e.touches.length === 1
+                        ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+                });
+                content.addEventListener('touchend', function(e) {
+                    if (_bs && e.changedTouches.length === 1) {
+                        var dx = Math.abs(_bs.x - e.changedTouches[0].clientX);
+                        var dy = Math.abs(_bs.y - e.changedTouches[0].clientY);
+                        if (dx < 10 && dy < 10) {
+                            if (childrenDiv.style.display === 'none') {
+                                childrenDiv.style.display = 'block';
+                                content.querySelector('.bullet-dot').style.boxShadow = 'none';
+                                content.querySelector('.bullet-dot').style.backgroundColor = 'rgb(100, 106, 115)';
+                                saveState(index, true);
+                            } else {
+                                childrenDiv.style.display = 'none';
+                                content.querySelector('.bullet-dot').style.boxShadow = getCollapsedBulletShadow();
+                                content.querySelector('.bullet-dot').style.backgroundColor = 'transparent';
+                                saveState(index, false);
+                            }
+                        }
+                    }
+                    _bs = null;
+                });
+            } else {
+                content.onclick = function() {
+                    if (childrenDiv.style.display === 'none') {
+                        childrenDiv.style.display = 'block';
+                        this.querySelector('.bullet-dot').style.boxShadow = 'none';
+                        this.querySelector('.bullet-dot').style.backgroundColor = 'rgb(100, 106, 115)';
+                        saveState(index, true);
+                    } else {
+                        childrenDiv.style.display = 'none';
+                        this.querySelector('.bullet-dot').style.boxShadow = getCollapsedBulletShadow();
+                        this.querySelector('.bullet-dot').style.backgroundColor = 'transparent';
+                        saveState(index, false);
+                    }
+                };
+            }
+        }
+    });
+    
+    
+    
+  </script>
+  
+  
+  
+  <script>
+  
+  (function () {
+   
+    function scrollToCloze() {
+      const element = document.getElementsByClassName('cloze')[0];
+  
+      
+      if (element) {
+        
+        
+        
+        element.scrollIntoView({ behavior: 'auto', block: 'center' });
+  
+        
+        return true;
+      }
+  
+      
+      return false;
+    }
+  
+   
+    function tryScrollWithRetries() {
+      
+      if (scrollToCloze()) {
+        return;
+      }
+  
+      let attempts = 0;
+      const maxAttempts = 20; 
+      const interval = 100;   
+  
+      
+      const scrollInterval = setInterval(function () {
+        attempts++;
+  
+        
+        if (scrollToCloze() || attempts >= maxAttempts) {
+          clearInterval(scrollInterval);
+        }
+      }, interval);
+    }
+  
+    
+    
+    
+    
+    if (typeof onShownHook !== 'undefined') {
+      onShownHook.push(tryScrollWithRetries);
+    } else {
+      setTimeout(tryScrollWithRetries, 1);
+    }
+  
+  })();
+  
+  </script>
+  
+  
+  
+  
+  <div class= "floating-button" onclick="scrollToElement()"> 定位</div>
+  
+  
+  <!-- 添加悬浮按钮和弹窗 -->
+  <div id="floating-widget">
+  </div>
+  <div class="custom-button" onclick="tick()">显/隐</div>
+  
+  <div id="popup">{{填写笔记}}      
+  
+   
+    
+    
+  </div>
+  
+  
+  <!-- 左侧浮动按钮 -->
+  <div id="left-floating-widget" ></div>
+  <div id="popup2" style="display: none; position: fixed; top: 1%; left: 50%; transform: translate(-50%, 0); background-color: rgba(255, 255, 255, 1); padding: 1%; box-shadow: 0 0 1% rgba(0, 0, 0, 0.8); z-index: 999; min-width:90%;width: auto;min-height:50%; height: auto;max-height:80%;border-radius: 10px;overflow-y: scroll;">{{导图}}
+    
+  </div>
+  
+  <script>
+  
+    function scrollToElement() {
+    
+        
+        var targetElements = document.getElementsByClassName('cloze'); 
+  
+        if (targetElements.length > 0) {
+            
+            targetElements[0].scrollIntoView({ behavior: 'smooth' });
+  
+            
+            var windowHeight = window.innerHeight;
+            var elementTop = targetElements[0].getBoundingClientRect().top;
+            var scrollY = window.scrollY || window.pageYOffset;
+            var offset = elementTop + scrollY - (windowHeight / 3);
+            
+            window.scrollTo({
+                top: offset,
+                behavior: 'smooth'
+            });
+        }
+    };
+  
+    
+    function setupFloatingWidget(floatingWidgetId, popupId, autoCloseTime) {
+        var floatingWidget = document.getElementById(floatingWidgetId);
+        var popup = document.getElementById(popupId);
+  
+        floatingWidget.onclick = function () {
+            if (popup.style.display === 'none' || popup.style.display === '') {
+                popup.style.display = 'block';
+  
+                
+                setTimeout(function () {
+                    popup.style.display = 'none';
+                }, autoCloseTime); 
+            } else {
+                popup.style.display = 'none';
+            }
+        };
+    }
+  
+    setupFloatingWidget('floating-widget', 'popup', 60000); 
+    setupFloatingWidget('left-floating-widget', 'popup2', 6000000); 
+  
+    
+  
+  </script>
+  
+  
+  
+  <script>
+    
+    // 为tooltip中的图片添加悬停放大功能
+    function setupTooltipImageHover(tooltip) {
+      const images = tooltip.querySelectorAll('img');
+      
+      images.forEach(img => {
+        let isEnlarged = false;
+        
+        // 桌面设备的鼠标悬停事件
+        img.addEventListener('mouseenter', function() {
+          // 检查tooltip是否已显示
+          if (tooltip.style.display === 'block') {
+            tooltip.classList.add('enlarged');
+            isEnlarged = true;
+          }
+        });
+        
+        img.addEventListener('mouseleave', function() {
+          tooltip.classList.remove('enlarged');
+          isEnlarged = false;
+        });
+        
+        // 移动设备点击事件支持
+        img.onclick = function(e) {
+          isEnlarged = !isEnlarged;
+          if (isEnlarged) {
+            img.classList.add('enlarged');
+          } else {
+            img.classList.remove('enlarged');
+          }
+          e.preventDefault();
+          e.stopPropagation();
+        };
+        
+  
+        
+  
+        
+        // 当tooltip关闭时重置放大状态
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+              if (tooltip.style.display === 'none') {
+                isEnlarged = false;
+              }
+            }
+          });
+        });
+        
+        observer.observe(tooltip, {
+          attributes: true,
+          attributeFilter: ['style']
+        });
+      });
+    }
+    
+    function processCardContent() {
+      
+      let tooltipCounter = 0;
+      let currentTooltip = null;
+    
+      
+      const existingTooltips = document.querySelectorAll('.tooltip');
+      existingTooltips.forEach(tooltip => tooltip.remove());
+    
+      
+      const aTags = document.querySelectorAll('a:not([href])');
+    
+      aTags.forEach((aTag, index) => {
+    
+        const textContent = aTag.textContent.trim();
+        const hasChildElements = aTag.children.length > 0;
+    
+        if (textContent === "" && !hasChildElements) {
+    
+          let nextElement = aTag.nextSibling;
+          let pureHtmlContent = "";
+    
+          while (nextElement) {
+            if (nextElement.nodeType === 3 && nextElement.textContent.trim()) {
+              pureHtmlContent += nextElement.textContent.trim() + " ";
+            } else if (nextElement.nodeType === 1) {
+              pureHtmlContent += nextElement.outerHTML;
+            }
+            nextElement = nextElement.nextSibling;
+          }
+    
+          pureHtmlContent = pureHtmlContent.trim();
+    
+          
+          const linkPattern = /<a href="#_msoanchor_\d+">.*?\[☁️\d+\].*?<\/a>/g;
+          pureHtmlContent = pureHtmlContent.replace(linkPattern, '');
+    
+          
+          pureHtmlContent = pureHtmlContent.replace(/&nbsp;/g, '');
+    
+          if (pureHtmlContent) {
+    
+            
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.id = `tooltip-${++tooltipCounter}`;
+            tooltip.innerHTML = pureHtmlContent;
+            document.body.appendChild(tooltip);
+            
+            // 为tooltip中的图片添加悬停放大功能
+            setupTooltipImageHover(tooltip);
+          }
+    
+          
+          const parentElement = aTag.parentElement;
+          if (parentElement) {
+            parentElement.style.display = 'none';
+          }
+        }
+      });
+    
+      
+      const annotationLinks = document.querySelectorAll('a[href^="#_msocom_"]');
+    
+      annotationLinks.forEach(link => {
+        const match = link.getAttribute('href').match(/#_msocom_(\d+)/);
+        if (!match) return;
+    
+        const tooltipId = `tooltip-${match[1]}`;
+        const tooltip = document.getElementById(tooltipId);
+    
+        if (!tooltip) {
+          return;
+        }
+    
+        
+        link.onclick = function(event) {
+          event.preventDefault(); 
+          event.stopPropagation(); 
+    
+          
+          if (currentTooltip) {
+            if (currentTooltip === tooltip) {
+              currentTooltip.style.display = 'none';
+              currentTooltip = null;
+            } else {
+              currentTooltip.style.display = 'none';
+              tooltip.style.display = 'block';
+              currentTooltip = tooltip;
+            }
+          } else {
+            tooltip.style.display = 'block';
+            currentTooltip = tooltip;
+          }
+    
+          
+          const rect = link.getBoundingClientRect();
+          tooltip.style.position = 'absolute';
+          tooltip.style.left = `${rect.left}px`;
+          tooltip.style.top = `${rect.bottom + window.scrollY}px`;
+    
+          
+          const tooltipRect = tooltip.getBoundingClientRect();
+          const viewportWidth = document.documentElement.clientWidth; 
+    
+          if (tooltipRect.right > viewportWidth) {
+            const overflow = tooltipRect.right - viewportWidth;
+            tooltip.style.left = `${rect.left - overflow}px`; 
+          }
+        };
+      });
+    
+      
+      document.addEventListener('click', function(event) {
+        handleTooltipClick(event);
+      });
+    
+      document.addEventListener('touchstart', function(event) {
+        handleTooltipClick(event);
+      });
+    
+      function handleTooltipClick(event) {
+        
+        if (currentTooltip && !currentTooltip.contains(event.target) && !event.target.closest('a[href^="#_msocom_"]')) {
+          currentTooltip.style.display = 'none';
+          currentTooltip = null;
+        }
+      }
+    }
+    
+    
+    function checkExpandableContent() {
+        
+        var bulletElements = document.querySelectorAll('.bullet');
+        var expandButton = document.querySelector('.custom2-button');
+        var customButton = document.querySelector('.custom-button');
+        var leftFloatingWidget = document.querySelector('#left-floating-widget');
+        
+        if (expandButton) {
+            if (bulletElements.length === 0) {
+                
+                expandButton.style.display = 'none';
+                
+                
+                if (leftFloatingWidget) {
+                    leftFloatingWidget.style.top = '0';
+                    leftFloatingWidget.style.height = '50%';
+                }
+                if (customButton) {
+                    customButton.style.top = '50%';
+                    customButton.style.height = '50%';
+                }
+                
+  
+            } else {
+                
+                expandButton.style.display = 'flex';
+                
+                
+                if (leftFloatingWidget) {
+                    leftFloatingWidget.style.top = '0';
+                    leftFloatingWidget.style.height = '33.3%';
+                }
+                if (customButton) {
+                    customButton.style.top = '66.6%';  
+                    customButton.style.height = '33.4%';
+                }
+                
+  
+            }
+        }
+    }
+  
+    
+    processCardContent();
+    
+    
+    checkExpandableContent();
+    
+    
+    if (window.anki) {
+      window.anki.onupdate = function() {
+          processCardContent();
+          checkExpandableContent();
+      };
+    }
+    </script>
+  
+  <script>
+  /*
+   * ╔══════════════════════════════════════════════════════════════╗
+   * ║              快捷键 & 手柄支持（背面）                       ║
+   * ╠══════════════════════════════════════════════════════════════╣
+   * ║ 键盘快捷键（避开 Anki 内置：Space/Enter/1-7/E/R/A/B/S/T/Y/V）║
+   * ║   G        → 笔记   弹出填写笔记浮窗（左侧顶部按钮）          ║
+   * ║   H        → 定位   滚动到当前挖空（左侧底部按钮）            ║
+   * ║   J        → 导图   弹出导图浮窗（右侧顶部按钮）              ║
+   * ║   K        → 伸/缩  展开或折叠所有节点（右侧中部按钮）        ║
+   * ║   L        → 显/隐  cloze 答案（右侧底部按钮）               ║
+   * ║   C        → 色系   切换象牙笺 / 竹露主题                    ║
+   * ║   Ctrl+F   → 搜索   打开搜索面板并聚焦输入框                 ║
+   * ║   Escape   → 关闭   关闭搜索面板                            ║
+   * ║   】       → 揭示   揭示下一个挖空                          ║
+   * ║   【       → 收回   收回最后揭示的挖空                       ║
+   * ╠══════════════════════════════════════════════════════════════╣
+   * ║ 手柄按键（Gamepad API，Xbox/PS 通用布局）                    ║
+   * ║   A / × (Button 0)  → 评分 Again（重来）                    ║
+   * ║   B / ○ (Button 1)  → 评分 Good（良好）                     ║
+   * ║   X / □ (Button 2)  → 评分 Hard（困难）                     ║
+   * ║   Y / △ (Button 3)  → 评分 Easy（简单）                     ║
+   * ║   LB / L1 (Button 4)→ 【收回最后揭示的挖空                  ║
+   * ║   RB / R1 (Button 5)→ 】揭示下一个挖空                      ║
+   * ║   LT / L2 (Button 6)→ 展开/折叠节点                         ║
+   * ║   RT / R2 (Button 7)→ 显/隐 cloze 答案                      ║
+   * ║   L3 (Button 10)    → 定位到当前挖空                        ║
+   * ║   R3 (Button 11)    → 色系切换                              ║
+   * ║   左摇杆 Y 轴       → 上下滚动页面                           ║
+   * ║   右摇杆 Y 轴       → 页面缩放（上拨放大 / 下拨缩小）        ║
+   * ╚══════════════════════════════════════════════════════════════╝
+   */
+  (function () {
+    'use strict';
+  
+    /* ══════════════════════════════════════════════════════════════
+     * 监听器注册机制
+     * ──────────────────────────────────────────────────────────────
+     * Anki 新版翻牌不完整重载页面，正面注册的监听器在背面仍然存活。
+     * 若直接再次注册，每次按键会触发两遍（如 tick() 展开后立刻折叠）。
+     * 解决方案：翻牌前先移除上一轮所有监听器，再重新注册。
+     * ══════════════════════════════════════════════════════════════ */
+    if (typeof window.ankiShortcutListeners !== 'undefined') {
+      for (var i = 0; i < window.ankiShortcutListeners.length; i++) {
+        document.removeEventListener(
+          window.ankiShortcutListeners[i][0],
+          window.ankiShortcutListeners[i][1],
+          window.ankiShortcutListeners[i][2] === true
+        );
+      }
+    }
+    window.ankiShortcutListeners = [];
+  
+    function addListener(type, handler) {
+      /* 使用 capture=true，尽量在 Anki 原生快捷键之前截获事件 */
+      var useCapture = true;
+      document.addEventListener(type, handler, useCapture);
+      window.ankiShortcutListeners.push([type, handler, useCapture]);
+    }
+  
+    /* ── 工具：展开/折叠全部节点（智能切换） ── */
+    function toggleExpandCollapse() {
+      var anyCollapsed = false;
+      document.querySelectorAll('.bullet').forEach(function (bullet) {
+        var ch = bullet.parentElement && bullet.parentElement.querySelector('.children');
+        if (ch && ch.style.display === 'none') anyCollapsed = true;
+      });
+      var btn = anyCollapsed
+        ? document.getElementById('xian')
+        : document.getElementById('yin');
+      if (btn) btn.click();
+    }
+  
+    /* ── 工具：切换弹窗 ──
+       优先读取 inline style（与原按钮逻辑一致）：
+       空字符串 '' 或 'none' 均视为隐藏；否则视为已显示。
+       这样可兼容 CSS hidden（#popup）和 inline hidden（#popup2）两种写法。 */
+    function triggerPopup(popupId) {
+      var popup = document.getElementById(popupId);
+      if (!popup) return;
+      var shown = popup.style.display !== '' && popup.style.display !== 'none';
+      popup.style.display = shown ? 'none' : 'block';
+    }
+  
+    /* ── 工具：揭示下一个挖空（】键） ──
+       按 DOM 顺序找到第一个仍显示 [...] 的 .cloze，调用全局 toggle() 展开，
+       然后滚动至视口 1/3 处，与 scrollToElement 保持一致的视觉体验。 */
+    function revealNextCloze() {
+      var clozes = document.querySelectorAll('span.cloze');
+      for (var i = 0; i < clozes.length; i++) {
+        if (clozes[i].querySelector('.cloze-placeholder')) {
+          if (typeof toggle === 'function') toggle(clozes[i]);
+          var top = clozes[i].getBoundingClientRect().top
+            + (window.scrollY || window.pageYOffset)
+            - window.innerHeight / 3;
+          window.scrollTo({ top: top, behavior: 'smooth' });
+          break;
+        }
+      }
+    }
+  
+    /* ── 工具：收回最后揭示的挖空（【键） ──
+       按 DOM 逆序找到最后一个已展开的 .cloze，调用 toggle() 重新隐藏。 */
+    function hideLastCloze() {
+      var clozes = document.querySelectorAll('span.cloze');
+      for (var i = clozes.length - 1; i >= 0; i--) {
+        if (!clozes[i].querySelector('.cloze-placeholder')) {
+          if (typeof toggle === 'function') toggle(clozes[i]);
+          var top = clozes[i].getBoundingClientRect().top
+            + (window.scrollY || window.pageYOffset)
+            - window.innerHeight / 3;
+          window.scrollTo({ top: top, behavior: 'smooth' });
+          break;
+        }
+      }
+    }
+  
+    /* ── 工具：打开搜索并可选聚焦 ── */
+    function openSearch(focusInput) {
+      var box = document.getElementById('searchBox');
+      if (box) { box.style.visibility = 'visible'; box.style.height = 'auto'; }
+      if (focusInput) {
+        var inp = document.getElementById('search');
+        if (inp) { inp.focus(); inp.select(); }
+      }
+    }
+  
+    /* ── 工具：关闭搜索 ── */
+    function closeSearch() {
+      var box = document.getElementById('searchBox');
+      if (box) { box.style.visibility = 'hidden'; box.style.height = '0'; }
+    }
+  
+    /* ══════════════════════════════════════════════════════════════
+     * 键盘快捷键
+     * ──────────────────────────────────────────────────────────────
+     * 使用 event.code（物理键位）而非 event.key：
+     *   · event.key 在中文输入法激活时可能返回 'Process' 或汉字
+     *   · event.code 始终反映按键物理位置，不受输入法影响
+     * ══════════════════════════════════════════════════════════════ */
+    /* ── G 键专用 keyup 监听器 ──
+       Anki/Qt 会消耗 G 键的 keydown，改用 keyup 触发 G 功能。 */
+    addListener('keyup', function (e) {
+      var tag = document.activeElement ? document.activeElement.tagName : '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (e.code === 'KeyG') {
+        triggerPopup('popup');
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+
+    addListener('keydown', function (e) {
+      var handled = false;
+      /* Ctrl/Cmd + F：打开搜索并聚焦（任何焦点状态下生效） */
+      if ((e.ctrlKey || e.metaKey) && e.code === 'KeyF') {
+        handled = true;
+        openSearch(true);
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+  
+      /* Escape：关闭搜索菜单并取消输入框焦点。
+         必须放在输入框检查之前，否则搜索框展开+输入框获焦时
+         Escape 会被 INPUT 检查提前 return 掉，永远无法关闭菜单。 */
+      if (e.code === 'Escape') {
+        handled = true;
+        closeSearch();
+        if (document.activeElement) document.activeElement.blur();
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+  
+      /* 输入框内除上述两条之外的单键全部静默 */
+      var tag = document.activeElement ? document.activeElement.tagName : '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  
+      /* 单键快捷键：用 e.code 精确匹配物理键位 */
+      switch (e.code) {
+        /* ── 左侧 2 按钮：home 行 G-H ── */
+        case 'KeyH': /* 定位到当前挖空（左侧底部） */
+          handled = true;
+          if (typeof scrollToElement === 'function') scrollToElement(); break;
+        /* ── 右侧 3 按钮：home 行 J-K-L ── */
+        case 'KeyJ': /* 导图浮窗（右侧顶部） */
+          handled = true;
+          triggerPopup('popup2'); break;
+        case 'KeyK': /* 展开 / 折叠 节点（右侧中部） */
+          handled = true;
+          toggleExpandCollapse(); break;
+        case 'KeyL': /* 显/隐 cloze 答案（右侧底部） */
+          handled = true;
+          if (typeof tick === 'function') tick(); break;
+        /* F 键与 Anki 原生 Flag 快捷键冲突，已移除；请用 Ctrl+F 开启搜索 */
+        case 'KeyC': /* 色系切换 */
+          handled = true;
+          if (typeof toggleTheme === 'function') toggleTheme(); break;
+        /* ── 挖空逐步揭示 ── */
+        case 'BracketRight': /* 】揭示下一个挖空 */
+          handled = true;
+          revealNextCloze(); break;
+        case 'BracketLeft':  /* 【收回最后揭示的挖空 */
+          handled = true;
+          hideLastCloze(); break;
+      }
+      if (handled) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+  
+    /* ══════════════════════════════════════════════════════════════
+     * 手柄支持（Gamepad API 轮询，边沿检测 + 300ms 防抖）
+     * ══════════════════════════════════════════════════════════════ */
+    if (typeof navigator === 'undefined' || !navigator.getGamepads) return;
+  
+    /* ── 工具：评分并进入下一张（背面专用，ease 1-4）──
+       先停止本侧循环（gamepadShouldStop），再点击对应评分按钮或调 pycmd，
+       防止同步 click() 导致前后两个循环同时存活互相抵消。 */
+    function triggerEase(ease) {
+      gamepadShouldStop = true;
+      var btn = document.querySelector(
+        '#anki-ease' + ease + ', #ease' + ease +
+        ', .ease[data-ease="' + ease + '"], button[data-ease="' + ease + '"]'
+      );
+      if (btn) { btn.click(); return; }
+      setTimeout(function () { try { pycmd('ease' + ease); } catch (e) {} }, 0);
+    }
+  
+    var GP_DEBOUNCE_MS = 300;
+    var gpLastFire = {};
+    var gpWasPressed = {};
+    /* 停止标志：triggerSpace 触发翻牌/评分前置为 true，让 pollGamepad 不再调度下一帧 */
+    var gamepadShouldStop = false;
+  
+    /* ── 手柄按键映射（背面）──
+       Button 0  A / ×   → 评分 Again（重来，ease1）
+       Button 1  B / ○   → 评分 Good（良好，ease3）
+       Button 2  X / □   → 评分 Hard（困难，ease2）
+       Button 3  Y / △   → 评分 Easy（简单，ease4）
+       Button 4  LB / L1 → 【收回最后揭示的挖空
+       Button 5  RB / R1 → 】揭示下一个挖空
+      Button 6  LT / L2 → 展开 / 折叠节点
+      Button 7  RT / R2 → 显 / 隐 cloze 答案
+       Button 10 L3      → 定位到当前挖空
+       Button 11 R3      → 色系切换
+       左摇杆 Y 轴       → 上下滚动页面（比例速度，含死区）
+       右摇杆 Y 轴       → 页面缩放（上拨放大，下拨缩小） */
+    var gpMap = {
+      0:  function () { triggerEase(1); },
+      1:  function () { triggerEase(3); },
+      2:  function () { triggerEase(2); },
+      3:  function () { triggerEase(4); },
+      4:  function () { hideLastCloze(); },
+      5:  function () { revealNextCloze(); },
+      6:  function () { toggleExpandCollapse(); },
+      7:  function () { if (typeof tick === 'function') tick(); },
+      10: function () { if (typeof scrollToElement === 'function') scrollToElement(); },
+      11: function () { if (typeof toggleTheme === 'function') toggleTheme(); }
+    };
+  
+    /* 取消上一轮轮询（翻牌时旧循环仍在运行，不取消会双重触发） */
+    if (typeof window.ankiGamepadPollId !== 'undefined') {
+      cancelAnimationFrame(window.ankiGamepadPollId);
+    }
+  
+    /* 摇杆参数 */
+    var STICK_DEADZONE   = 0.25;
+    var STICK_SCROLL_SPD = 10;
+    var ZOOM_SPEED       = 0.005;
+    var ZOOM_MIN         = 0.3;
+    var ZOOM_MAX         = 3.0;
+  
+    function pollGamepad() {
+      /* 若本侧已触发评分，停止调度，让下一侧接管 */
+      if (gamepadShouldStop) return;
+      var gamepads = navigator.getGamepads();
+      for (var gi = 0; gi < gamepads.length; gi++) {
+        var gp = gamepads[gi];
+        if (!gp) continue;
+  
+        /* ── 按钮事件（边沿检测 + 防抖） ── */
+        for (var idx in gpMap) {
+          var btn = gp.buttons[idx];
+          var pressed = btn && (btn.pressed || btn.value > 0.5);
+          var now = Date.now();
+          if (pressed && !gpWasPressed[idx] &&
+              (now - (gpLastFire[idx] || 0)) >= GP_DEBOUNCE_MS) {
+            gpMap[idx]();
+            gpLastFire[idx] = now;
+          }
+          gpWasPressed[idx] = pressed;
+        }
+  
+        if (gp.axes) {
+          /* ── 左摇杆 Y 轴（axes[1]）→ 滚动页面：-1=上，+1=下 ── */
+          if (gp.axes.length > 1 && Math.abs(gp.axes[1]) > STICK_DEADZONE) {
+            window.scrollBy(0, gp.axes[1] * STICK_SCROLL_SPD);
+          }
+  
+          /* ── 右摇杆 Y 轴（axes[3]）→ 缩放页面：-1=上=放大，+1=下=缩小 ── */
+          if (gp.axes.length > 3 && Math.abs(gp.axes[3]) > STICK_DEADZONE) {
+            var curZoom = parseFloat(document.body.style.zoom) || 1;
+            var newZoom = curZoom - gp.axes[3] * ZOOM_SPEED;
+            newZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, newZoom));
+            document.body.style.zoom = newZoom;
+          }
+        }
+      }
+      window.ankiGamepadPollId = requestAnimationFrame(pollGamepad);
+    }
+  
+    /* 预填当前按钮状态：防止翻牌时仍按住的按钮在新循环启动后立刻重触发 */
+    var _initGps = navigator.getGamepads();
+    for (var _ig = 0; _ig < _initGps.length; _ig++) {
+      if (!_initGps[_ig]) continue;
+      _initGps[_ig].buttons.forEach(function (b, idx) {
+        if (b && (b.pressed || b.value > 0.5)) gpWasPressed[idx] = true;
+      });
+    }
+  
+  window.ankiGamepadPollId = requestAnimationFrame(pollGamepad);
+})();
+</script>
+
+<script>
+/*
+ * AnkiNoteLinker 融合版（iOS / Android / 桌面 兼容）
+ *
+ * 改动说明（相对原始脚本）：
+ *   1. 先做替换，再对比新旧字符串——有变化才写回 innerHTML，
+ *      避免无匹配时也触发 DOM 重建，从而保留 .cloze / .bullet 的事件监听器。
+ *   2. 若 innerHTML 确实被替换，则立即为容器内新生成的 .cloze 节点
+ *      重新绑定事件，逻辑与 setupClozeEvents() 完全一致：
+ *      iOS/Android 用 touchstart + touchend，桌面用 click。
+ *   3. 将 ||= 改为 = ... || ...，兼容不支持逻辑赋值运算符的旧版 iOS Safari。
+ *   4. innerHTML 替换同样会销毁 .bullet 的事件绑定；在此同步重建，
+ *      与主初始化代码逻辑完全一致：移动端 touch，桌面 onclick。
+ */
+var disableLinks = false; // 改为 true 则仅显示文本，移除跳转功能
+if (!window.AnkiNoteLinkerIsActive) {
+    const renderLinks = function () {
+        /* 移动端检测：与模板中 setupClozeEvents() 完全相同的判断条件 */
+        var isMobile = /webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        var touchThreshold = 10;
+
+        document.querySelectorAll('.linkRender').forEach(function (element) { // 若自定义了 class，此处同步修改（保留前面的 .）
+            var original = element.innerHTML;
+            var replaced = original.replace(
+                /\[((?:[^\[]|\\\[)*)\|nid(\d{13})\]/g,
+                function (match, title, nid) {
+                    title = title.replace(/\\\[/g, '[');
+                    var link;
+                    if (document.documentElement.classList.contains('iphone') ||
+                        document.documentElement.classList.contains('ipad')) {
+                        link = 'anki://x-callback-url/search?query=nid%3a' + nid;
+                    } else {
+                        try {
+                            /* 用 = ... || ... 代替 ||=，兼容旧版 iOS Safari */
+                            window.jsAPI = window.jsAPI || new AnkiDroidJS({ version: '0.0.3', developer: 'github.com/gugutu' });
+                            link = 'javascript:window.jsAPI.ankiSearchCard(`nid:' + nid + '`)';
+                        } catch (e) {
+                            link = "https://ankiuser.net/edit/" + nid + "' target='_blank";
+                        }
+                    }
+                    return disableLinks ? title : "<a href='" + link + "' class='noteLink'>" + title + "</a>";
+                }
+            );
+
+            /* ── 关键优化：无变化则跳过，不重建 DOM ── */
+            if (replaced === original) return;
+
+            element.innerHTML = replaced;
+
+            /*
+             * innerHTML 替换后，容器内所有 .cloze 节点都是全新的 DOM 对象，
+             * 原本由 setupClozeEvents() 绑定的 touch/click 监听器已丢失。
+             * 以下代码按相同策略重新绑定，确保挖空点击在 iOS/Android 正常工作。
+             */
+            element.querySelectorAll('span.cloze').forEach(function (clozeEl) {
+                if (isMobile) {
+                    /* 移动端：复用 addMobileClickHandler 的触摸位移检测逻辑 */
+                    var startPos = null;
+                    clozeEl.addEventListener('touchstart', function (e) {
+                        startPos = (e.touches.length === 1)
+                            ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+                            : null;
+                    });
+                    clozeEl.addEventListener('touchend', function (e) {
+                        if (startPos && e.changedTouches.length === 1) {
+                            var dx = Math.abs(startPos.x - e.changedTouches[0].clientX);
+                            var dy = Math.abs(startPos.y - e.changedTouches[0].clientY);
+                            if (dx < touchThreshold && dy < touchThreshold) {
+                                if (typeof toggle === 'function') toggle(e.currentTarget || e.srcElement);
+                            }
+                        }
+                        startPos = null;
+                    });
+                } else {
+                    /* 桌面端：直接监听 click 事件，与原逻辑一致 */
+                    clozeEl.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        if (typeof toggle === 'function') toggle(e.currentTarget || e.srcElement);
+                    });
+                }
+            });
+
+            /*
+             * innerHTML 替换同样销毁了 .bullet 节点的事件绑定（onclick 是 JS 属性，
+             * 序列化为字符串时不保留）。以下按主初始化代码完全相同的逻辑重建：
+             * 移动端用 touch，桌面用 onclick。
+             * .linkRender 包裹了全部内容，容器内 bullet 本地索引 === 全局索引，
+             * 可直接传入 saveState / getCollapsedBulletShadow。
+             */
+            element.querySelectorAll('.bullet').forEach(function (bContent, bIdx) {
+                var bCh = bContent.parentElement.querySelector('.children');
+                if (!bCh) return;
+                if (isMobile) {
+                    var bs = null;
+                    bContent.addEventListener('touchstart', function (e) {
+                        bs = e.touches.length === 1
+                            ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+                    });
+                    bContent.addEventListener('touchend', function (e) {
+                        if (bs && e.changedTouches.length === 1) {
+                            var dx = Math.abs(bs.x - e.changedTouches[0].clientX);
+                            var dy = Math.abs(bs.y - e.changedTouches[0].clientY);
+                            if (dx < touchThreshold && dy < touchThreshold) {
+                                if (bCh.style.display === 'none') {
+                                    bCh.style.display = 'block';
+                                    bContent.querySelector('.bullet-dot').style.boxShadow = 'none';
+                                    bContent.querySelector('.bullet-dot').style.backgroundColor = 'rgb(100, 106, 115)';
+                                    if (typeof saveState === 'function') saveState(bIdx, true);
+                                } else {
+                                    bCh.style.display = 'none';
+                                    bContent.querySelector('.bullet-dot').style.boxShadow =
+                                        typeof getCollapsedBulletShadow === 'function'
+                                        ? getCollapsedBulletShadow()
+                                        : '0 0 0 2px rgb(100, 106, 115), 0 0 0 4px rgb(200, 200, 200)';
+                                    bContent.querySelector('.bullet-dot').style.backgroundColor = 'transparent';
+                                    if (typeof saveState === 'function') saveState(bIdx, false);
+                                }
+                            }
+                        }
+                        bs = null;
+                    });
+                } else {
+                    bContent.onclick = (function (cnt, ch, idx) {
+                        return function () {
+                            if (ch.style.display === 'none') {
+                                ch.style.display = 'block';
+                                cnt.querySelector('.bullet-dot').style.boxShadow = 'none';
+                                cnt.querySelector('.bullet-dot').style.backgroundColor = 'rgb(100, 106, 115)';
+                                if (typeof saveState === 'function') saveState(idx, true);
+                            } else {
+                                ch.style.display = 'none';
+                                cnt.querySelector('.bullet-dot').style.boxShadow =
+                                    typeof getCollapsedBulletShadow === 'function'
+                                    ? getCollapsedBulletShadow()
+                                    : '0 0 0 2px rgb(100, 106, 115), 0 0 0 4px rgb(200, 200, 200)';
+                                cnt.querySelector('.bullet-dot').style.backgroundColor = 'transparent';
+                                if (typeof saveState === 'function') saveState(idx, false);
+                            }
+                        };
+                    })(bContent, bCh, bIdx);
+                }
+            });
+
+            /* innerHTML 替换同样销毁了 cz-* 类元素（cloze2_w / cloze2）的 click / touch 事件。
+             * 桌面端重建 click；移动端重建 touch 事件。
+             * stopPropagation 防冒泡，preventDefault 防合成 click 与 onclick 属性双重触发。 */
+            element.querySelectorAll('[class^="cz-"]').forEach(function (el) {
+                el.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    if (typeof toggleReveal === 'function') toggleReveal(e.currentTarget || e.srcElement);
+                });
+                if (isMobile) {
+                    var _sp = null;
+                    el.addEventListener('touchstart', function (e) {
+                        _sp = e.touches.length === 1
+                            ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+                        e.stopPropagation();
+                    });
+                    el.addEventListener('touchend', function (e) {
+                        if (_sp && e.changedTouches.length === 1) {
+                            var dx = Math.abs(_sp.x - e.changedTouches[0].clientX);
+                            var dy = Math.abs(_sp.y - e.changedTouches[0].clientY);
+                            if (dx < 10 && dy < 10) {
+                                e.preventDefault();
+                                if (typeof toggleReveal === 'function') toggleReveal(e.currentTarget || e.srcElement);
+                            }
+                        }
+                        _sp = null;
+                    });
+                }
+            });
+        });
+    };
+
+    document.readyState !== 'loading'
+        ? renderLinks()
+        : document.addEventListener('DOMContentLoaded', renderLinks, { once: true });
+}
+</script>
+
+  
+  
+  </template><script>decryptBack()</script>
