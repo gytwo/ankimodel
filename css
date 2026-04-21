@@ -2,6 +2,416 @@
       font-family:lxgw; src: url('_guoqijihua_lxgwGBR.ttf'); 
   }
 
+  /* =====================================================
+    主题色系变量定义
+    ===================================================== */
+/* 豆沙主题（THEME = 1）- 豆沙绿色系 */
+html.theme-dousha {
+    --body-bg: #C7EDCC;
+    --body-color: #2c3e2c;
+    --card-bg: #C7EDCC;
+    --frosted-blur: 4px;
+    --frosted-bg: rgba(199, 237, 204, 0.55);
+    --cloze-bg: rgba(255, 255, 214, 0.8);
+    --cloze-border: green;
+    --cloze-track: rgba(0, 0, 0, 0.05);
+    --cloze-thumb: rgba(46, 125, 50, 0.5);
+    --cloze-thumb-hover: rgba(46, 125, 50, 0.65);
+    --cloze2_w-color: blue;
+    --reveal-bg: #eef1fc;
+    --reveal-border: #9ec9f3;
+    --reveal-track: rgba(0, 0, 0, 0.05);
+    --reveal-thumb: rgba(46, 125, 50, 0.5);
+    --reveal-thumb-hover: rgba(46, 125, 50, 0.65);
+    --marker-color: #4a8a3a;
+    --searchbox-bg: rgba(250, 250, 250, 1);
+    --searchinput-border: #e0e0e0;
+    --searchinput-bg: rgba(250, 250, 250, 0.5);
+    --searchresult-color: #000000;
+    --floating-bg: rgba(199, 237, 204, 0.7);
+    --floating-color: #3a5a3a;
+    --table-border: #a8c9ac;
+    --th-bg: #d5f0d8;
+    --th-color: #2c3e2c;
+    --th-border-bottom: #c5e0c8;
+    --th-border-right: #d0e8d3;
+    --td-color: #3a5a3a;
+    --td-border-bottom: #e0f0e2;
+    --td-border-right: #e8f4ea;
+    --td-hover-bg: #ffffff;   /*#f3f6eb*/
+    --td-even-bg: #ffffff;    /*#f9faf5*/
+    --link-color: #2196f3;
+    --link-hover: #1976d2;
+    --title-color: #2c3e2c;
+    --title-border: #c5e0c8;
+    --note-color: #5a8a5a;
+    --treeline-color: #8ab88a;
+    --hi-red-bg: #ffebee;
+    --hi-red-color: #c62828;
+    --hi-yellow-bg: #fff8e1;
+    --hi-yellow-color: #ef6c00;
+    --hi-blue-bg: #e3f2fd;
+    --hi-blue-color: #1565c0;
+    --hi-cyan-bg: #e0f7fa;
+    --hi-cyan-color: #00695c;
+    --hi-pink-bg: #fce4ec;
+    --hi-pink-color: #880e4f;
+    --hi-olive-bg: #f1f8e9;
+    --hi-olive-color: #33691e;
+    --hi-grey-bg: #f5f5f5;
+    --hi-grey-color: #616161;
+    --txt-red: #d32f2f;
+    --txt-yellow: #f57c00;
+    --txt-green: #2e7d32;
+    --txt-blue: #1976d2;
+    --txt-purple: #673ab7;
+    --bullet-dot-color: #4caf50;
+    --mention-color: #5c6bc0;
+    --tooltip-bg: #ffffff;
+    --publish-color: #7a9e7a;
+    --publish-link-color: #2e7d32;
+    --underline-deco-color: #2e7d32;
+}
+
+  /* 竹露主题（THEME = 2）- 自然绿色系 */
+  html.theme-zhulu {
+    --body-bg: transparent;
+    --body-color: #3a3e2e;
+    --card-bg: #f0f4e8;
+    --frosted-blur: 3px;
+    --frosted-bg: rgba(255, 248, 225, 0.55);
+    --cloze-bg: #d0e0f5;
+    --cloze-border: #5a8aba;
+    --cloze-track: rgba(0, 0, 0, 0.1);
+    --cloze-thumb: rgba(0, 0, 0, 0.4);
+    --cloze-thumb-hover: rgba(0, 0, 0, 0.6);
+    --cloze2_w-color: blue;
+    --reveal-bg: #eef1fc;
+    --reveal-border: #9ec9f3;
+    --reveal-track: rgba(0, 0, 0, 0.1);
+    --reveal-thumb: rgba(0, 0, 0, 0.4);
+    --reveal-thumb-hover: rgba(0, 0, 0, 0.6);
+    --marker-color: #4a7ab8;
+    --searchbox-bg: rgba(250, 250, 248, 1);
+    --searchinput-border: #d8e0c8;
+    --searchinput-bg: rgba(250, 250, 248, 0.5);
+    --searchresult-color: #3a3e2e;
+    --floating-bg: rgba(240, 244, 232, 0.96);
+    --floating-color: #7a8068;
+    --table-border: #dde5c8;
+    --th-bg: #f5f7f0;
+    --th-color: #3a3e2e;
+    --th-border-bottom: #cdd8b0;
+    --th-border-right: #e8eede;
+    --td-color: #4e5240;
+    --td-border-bottom: #eef2e4;
+    --td-border-right: #f5f8ee;
+    --td-hover-bg: #ffffff;   /*#f3f6eb*/
+    --td-even-bg: #ffffff;    /*#f9faf5*/
+    --link-color: #2196f3;
+    --link-hover: #1976d2;
+    --title-color: inherit;
+    --title-border: #d8e0c8;
+    --note-color: #7a8068;
+    --treeline-color: #9aaa80;
+    --hi-red-bg: #fce8e6;
+    --hi-red-color: inherit;
+    --hi-yellow-bg: #faf2d6;
+    --hi-yellow-color: inherit;
+    --hi-blue-bg: #daeaf8;
+    --hi-blue-color: inherit;
+    --hi-cyan-bg: #d6f0ea;
+    --hi-cyan-color: inherit;
+    --hi-pink-bg: #fce8f2;
+    --hi-pink-color: inherit;
+    --hi-olive-bg: #e4e6e0;
+    --hi-olive-color: inherit;
+    --hi-grey-bg: #e4e6e0;
+    --hi-grey-color: inherit;
+    --txt-red: #c0392b;
+    --txt-yellow: #d4820a;
+    --txt-green: #4a8a28;
+    --txt-blue: #2878b8;
+    --txt-purple: #6558b8;
+    --bullet-dot-color: rgb(90, 98, 78);
+    --mention-color: #5856d5;
+    --tooltip-bg: #f8fbf2;
+    --publish-color: #7a8068;
+    --publish-link-color: #3a7a5a;
+    --underline-deco-color: currentColor;
+  }
+
+  /* 象牙主题（THEME = 3）- 米白暖色系 */
+  html.theme-xiangya {
+    --body-bg: #f8f9fa;
+    --body-color: #212121;
+    --card-bg: rgba(254, 251, 240, 0.7);
+    --frosted-blur: 4px;
+    --frosted-bg: rgba(255, 248, 225, 0.55);
+    --cloze-bg: #d0e0f5;
+    --cloze-border: #5a8aba;
+    --cloze-track: rgba(0, 0, 0, 0.05);
+    --cloze-thumb: rgba(255, 193, 7, 0.5);
+    --cloze-thumb-hover: rgba(255, 193, 7, 0.65);
+    --cloze2_w-color: blue;
+    --reveal-bg: #eef1fc;
+    --reveal-border: #9ec9f3;
+    --reveal-track: rgba(0, 0, 0, 0.05);
+    --reveal-thumb: rgba(76, 175, 80, 0.5);
+    --reveal-thumb-hover: rgba(76, 175, 80, 0.65);
+    --marker-color: #d4a84a;
+    --searchbox-bg: rgba(250, 250, 250, 1);
+    --searchinput-border: #e0e0e0;
+    --searchinput-bg: rgba(250, 250, 250, 0.5);
+    --searchresult-color: #000000;
+    --floating-bg: rgba(254, 251, 240, 0.7);
+    --floating-color: #616161;
+    --table-border: #e0e0e0;
+    --th-bg: #f5f7fa;
+    --th-color: #424242;
+    --th-border-bottom: #e3f2fd;
+    --th-border-right: #f0f0f0;
+    --td-color: #616161;
+    --td-border-bottom: #f5f5f5;
+    --td-border-right: #fafafa;
+    --td-hover-bg: #ffffff;    /*#f5f5f5*/
+    --td-even-bg: #ffffff;     /*#fefefe*/
+    --link-color: #2196f3;
+    --link-hover: #1976d2;
+    --title-color: #212121;
+    --title-border: #e3f2fd;
+    --note-color: #64748B;
+    --treeline-color: #9aaa80;
+    --hi-red-bg: #ffebee;
+    --hi-red-color: #c62828;
+    --hi-yellow-bg: #fff8e1;
+    --hi-yellow-color: #ef6c00;
+    --hi-blue-bg: #e3f2fd;
+    --hi-blue-color: #1565c0;
+    --hi-cyan-bg: #e0f7fa;
+    --hi-cyan-color: #00695c;
+    --hi-pink-bg: #fce4ec;
+    --hi-pink-color: #880e4f;
+    --hi-olive-bg: #f1f8e9;
+    --hi-olive-color: #33691e;
+    --hi-grey-bg: #f5f5f5;
+    --hi-grey-color: #616161;
+    --txt-red: #d32f2f;
+    --txt-yellow: #f57c00;
+    --txt-green: #388e3c;
+    --txt-blue: #1976d2;
+    --txt-purple: #673ab7;
+    --bullet-dot-color: #64b5f6;
+    --mention-color: #5c6bc0;
+    --tooltip-bg: #ffffff;
+    --publish-color: #9e9e9e;
+    --publish-link-color: #2196f3;
+    --underline-deco-color: #2196f3;
+  }
+
+/* 淡雅主题（THEME = 4）- 淡紫白色系 */
+html.theme-danya {
+    --body-bg: #eef1fc;
+    --body-color: #4a4a6a;
+    --card-bg: #eef1fc;
+    --frosted-blur: 4px;
+    --frosted-bg: rgba(238, 241, 252, 0.55);
+    --cloze-bg: rgba(255, 250, 210, 0.85);
+    --cloze-border: #8a7a4a;
+    --cloze-track: rgba(0, 0, 0, 0.05);
+    --cloze-thumb: rgba(120, 130, 180, 0.5);
+    --cloze-thumb-hover: rgba(120, 130, 180, 0.65);
+    --cloze2_w-color: blue;
+    --reveal-bg: #eef1fc;
+    --reveal-border: #9ec9f3;
+    --reveal-track: rgba(0, 0, 0, 0.05);
+    --reveal-thumb: rgba(120, 130, 180, 0.4);
+    --reveal-thumb-hover: rgba(120, 130, 180, 0.6);
+    --marker-color: #7a8aba;
+    --searchbox-bg: rgba(248, 250, 254, 1);
+    --searchinput-border: #d0d8e8;
+    --searchinput-bg: rgba(248, 250, 254, 0.5);
+    --searchresult-color: #5a5a7a;
+    --floating-bg: rgba(248, 250, 254, 0.96);
+    --floating-color: #8a8aaa;
+    --table-border: #d0d8e8;
+    --th-bg: #f0f3fc;
+    --th-color: #4a4a6a;
+    --th-border-bottom: #e0e5f0;
+    --th-border-right: #e8ecf5;
+    --td-color: #5a5a7a;
+    --td-border-bottom: #f0f2f8;
+    --td-border-right: #f5f7fc;
+    --td-hover-bg: #ffffff;
+    --td-even-bg: #ffffff;
+    --link-color: #2196f3;
+    --link-hover: #1976d2;
+    --title-color: #4a4a6a;
+    --title-border: #d0d8e8;
+    --note-color: #8a8aaa;
+    --treeline-color: #b0b8d0;
+    --hi-red-bg: #ffebee;
+    --hi-red-color: #c62828;
+    --hi-yellow-bg: #fff8e1;
+    --hi-yellow-color: #ef6c00;
+    --hi-blue-bg: #e3f2fd;
+    --hi-blue-color: #1565c0;
+    --hi-cyan-bg: #e0f7fa;
+    --hi-cyan-color: #00695c;
+    --hi-pink-bg: #fce4ec;
+    --hi-pink-color: #880e4f;
+    --hi-olive-bg: #f1f8e9;
+    --hi-olive-color: #33691e;
+    --hi-grey-bg: #f5f5f5;
+    --hi-grey-color: #616161;
+    --txt-red: #d32f2f;
+    --txt-yellow: #f57c00;
+    --txt-green: #5a7a5a;
+    --txt-blue: #5a6ab0;
+    --txt-purple: #7a6ab0;
+    --bullet-dot-color: #8a9aba;
+    --mention-color: #7a8aba;
+    --tooltip-bg: #ffffff;
+    --publish-color: #a0a8c0;
+    --publish-link-color: #6a7ab0;
+    --underline-deco-color: #7a8aba;
+}
+
+/* 黛绿主题（THEME = 5）- 灰绿色系 */
+html.theme-dailv {
+    --body-bg: #e2eccd;
+    --body-color: #3a4a2e;
+    --card-bg: #e2eccd;
+    --frosted-blur: 4px;
+    --frosted-bg: rgba(226, 236, 205, 0.55);
+    --cloze-bg: #d0e0f5;
+    --cloze-border: #5a8aba;
+    --cloze-track: rgba(0, 0, 0, 0.05);
+    --cloze-thumb: rgba(120, 140, 80, 0.5);
+    --cloze-thumb-hover: rgba(120, 140, 80, 0.65);
+    --cloze2_w-color: blue;
+    --reveal-bg: #eef1fc;
+    --reveal-border: #9ec9f3;
+    --reveal-track: rgba(0, 0, 0, 0.05);
+    --reveal-thumb: rgba(120, 140, 80, 0.4);
+    --reveal-thumb-hover: rgba(120, 140, 80, 0.6);
+    --marker-color: #6b8a3a;
+    --searchbox-bg: rgba(245, 248, 238, 1);
+    --searchinput-border: #d0e0c0;
+    --searchinput-bg: rgba(245, 248, 238, 0.5);
+    --searchresult-color: #4a5a3a;
+    --floating-bg: rgba(245, 248, 238, 0.96);
+    --floating-color: #6a8060;
+    --table-border: #c8d8b0;
+    --th-bg: #eaf0d8;
+    --th-color: #3a4a2e;
+    --th-border-bottom: #d0e0b8;
+    --th-border-right: #d8e8c0;
+    --td-color: #4a5a3a;
+    --td-border-bottom: #e8f0e0;
+    --td-border-right: #eef4e8;
+    --td-hover-bg: #ffffff;
+    --td-even-bg: #ffffff;
+    --link-color: #2196f3;
+    --link-hover: #1976d2;
+    --title-color: #3a4a2e;
+    --title-border: #d0e0b8;
+    --note-color: #6a8a5a;
+    --treeline-color: #a8c08a;
+    --hi-red-bg: #ffebee;
+    --hi-red-color: #c62828;
+    --hi-yellow-bg: #fff8e1;
+    --hi-yellow-color: #ef6c00;
+    --hi-blue-bg: #e3f2fd;
+    --hi-blue-color: #1565c0;
+    --hi-cyan-bg: #e0f7fa;
+    --hi-cyan-color: #00695c;
+    --hi-pink-bg: #fce4ec;
+    --hi-pink-color: #880e4f;
+    --hi-olive-bg: #f1f8e9;
+    --hi-olive-color: #33691e;
+    --hi-grey-bg: #f5f5f5;
+    --hi-grey-color: #616161;
+    --txt-red: #d32f2f;
+    --txt-yellow: #f57c00;
+    --txt-green: #4a8a2a;
+    --txt-blue: #1976d2;
+    --txt-purple: #673ab7;
+    --bullet-dot-color: #7a9a5a;
+    --mention-color: #6b8a3a;
+    --tooltip-bg: #ffffff;
+    --publish-color: #8aa87a;
+    --publish-link-color: #5a7a3a;
+    --underline-deco-color: #6b8a3a;
+}
+
+/* 牙色主题（THEME = 6）- 浅奶油黄色系 */
+html.theme-yase {
+    --body-bg: #FAF9DA;
+    --body-color: #5a5a3a;
+    --card-bg: #FAF9DA;
+    --frosted-blur: 4px;
+    --frosted-bg: rgba(250, 249, 218, 0.55);
+    --cloze-bg: #e8ecf8;
+    --cloze-border: #6a9a4a;
+    --cloze-track: rgba(0, 0, 0, 0.05);
+    --cloze-thumb: rgba(180, 170, 80, 0.5);
+    --cloze-thumb-hover: rgba(180, 170, 80, 0.65);    
+    --reveal-bg: #eef1fc;
+    --reveal-border: #9ec9f3;
+    --reveal-track: rgba(0, 0, 0, 0.05);
+    --reveal-thumb: rgba(180, 170, 80, 0.4);
+    --reveal-thumb-hover: rgba(180, 170, 80, 0.6);
+    --marker-color: #c4a84a;
+    --searchbox-bg: rgba(253, 252, 238, 1);
+    --searchinput-border: #e8e0c0;
+    --searchinput-bg: rgba(253, 252, 238, 0.5);
+    --searchresult-color: #5a5a4a;
+    --floating-bg: rgba(253, 252, 238, 0.96);
+    --floating-color: #8a8a6a;
+    --table-border: #e0deb8;
+    --th-bg: #f8f7e0;
+    --th-color: #5a5a3a;
+    --th-border-bottom: #e8e6c8;
+    --th-border-right: #ecead0;
+    --td-color: #6a6a4a;
+    --td-border-bottom: #f0f0e0;
+    --td-border-right: #f5f5e8;
+    --td-hover-bg: #ffffff;
+    --td-even-bg: #ffffff;
+    --link-color: #2196f3;
+    --link-hover: #1976d2;
+    --title-color: #5a5a3a;
+    --title-border: #e0deb8;
+    --note-color: #8a8a6a;
+    --treeline-color: #c8c0a0;
+    --hi-red-bg: #ffebee;
+    --hi-red-color: #c62828;
+    --hi-yellow-bg: #fff8e1;
+    --hi-yellow-color: #ef6c00;
+    --hi-blue-bg: #e3f2fd;
+    --hi-blue-color: #1565c0;
+    --hi-cyan-bg: #e0f7fa;
+    --hi-cyan-color: #00695c;
+    --hi-pink-bg: #fce4ec;
+    --hi-pink-color: #880e4f;
+    --hi-olive-bg: #f1f8e9;
+    --hi-olive-color: #33691e;
+    --hi-grey-bg: #f5f5f5;
+    --hi-grey-color: #616161;
+    --txt-red: #d32f2f;
+    --txt-yellow: #d4a82a;
+    --txt-green: #6a8a3a;
+    --txt-blue: #1976d2;
+    --txt-purple: #673ab7;
+    --bullet-dot-color: #b8a86a;
+    --mention-color: #c4a84a;
+    --tooltip-bg: #ffffff;
+    --publish-color: #a8a880;
+    --publish-link-color: #8a7a4a;
+    --underline-deco-color: #c4a84a;
+}
+
   /* =====================================
     字体与基础设置
     ===================================== */
@@ -20,7 +430,8 @@
       transform: none !important;
       margin: 0px 0px;
       padding: 0;
-      color: #333;
+      background-color: var(--body-bg) ; 
+      color: var(--body-color);
       font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'PingFang SC',Helvetica, Arial, 'Microsoft YaHei', 微软雅黑, 黑体, Heiti, sans-serif,SimSun, 宋体, serif,'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   }
 
@@ -39,9 +450,7 @@
 	    font-family: lxgw;
       font-size: 16px;
       text-align: left;
-      background-color: #C7EDCC; 
-      /* 绿色系护眼：深豆沙绿#C7EDCC  浅灰绿： #e8f2d1  #f2f9e1  #e2eccd #e8f2cd */
-      /* 淡白紫淡雅：#eef1fc */
+      background-color: var(--card-bg);
       padding: 2rem 1.5rem 1rem 0.5rem; /* 上右下左*/
     //  padding: 2.5rem 3rem;
     //  box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
@@ -92,7 +501,8 @@ a {
     z-index: 1000;
     font-size: 12px;
     color: #666;
-    background-color: #C7EDCC;
+   // background-color: #C7EDCC;
+    background-color: var(--card-bg);
     cursor: pointer;
     width: 100%;
     box-sizing: border-box;
@@ -192,30 +602,30 @@ th, td {
     适配不同屏幕尺寸和夜间模式
     ===================================== */
   table {
-      width: 100% !important;
-      border-collapse: collapse !important;
-      margin: 1.5em 0 !important;
-      background-color: #ffffff !important;
-      border-radius: 6px !important;
-      overflow: hidden !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
-      line-height: 1.5 !important;
-      border: 1px solid #e8e8e8 !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 1.5em 0 !important;
+    background-color: #ffffff !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    line-height: 1.5 !important;
+    border: 1px solid var(--table-border) !important;
   }
 
   /* 表头样式 - 简约而有层次 */
   th {
-      background-color: #f8f9fa !important;
-      color: #333333 !important;
-      font-weight: 500 !important;
-      padding: 12px 16px !important;
-      text-align: left !important;
-      border-bottom: 1px solid #dee2e6 !important;
-      border-right: 1px solid #f0f0f0 !important;
-      border-top: none !important;
-      border-left: none !important;
-      font-size: 14px !important;
-      letter-spacing: 0.2px !important;
+    background-color: var(--th-bg) !important;
+    color: var(--th-color) !important;
+    font-weight: 500 !important;
+    padding: 12px 16px !important;
+    text-align: left !important;
+    border-bottom: 1px solid var(--th-border-bottom) !important;
+    border-right: 1px solid var(--th-border-right) !important;
+    border-top: none !important;
+    border-left: none !important;
+    font-size: 14px !important;
+    letter-spacing: 0.2px !important;
   }
 
   /* 表头最后一列不需要右边框 */
@@ -225,16 +635,16 @@ th, td {
 
   /* 数据单元格样式 - 注重可读性 */
   td {
-      padding: 10px 16px !important;
-      text-align: left !important;
-      border-bottom: 1px solid #f1f3f4 !important;
-      border-right: 1px solid #f8f9fa !important;
-      border-top: none !important;
-      border-left: none !important;
-      vertical-align: top !important;
-      color: #555555 !important;
-      background-color: transparent !important;
-      transition: background-color 0.15s ease !important;
+    padding: 10px 16px !important;
+    text-align: left !important;
+    border-bottom: 1px solid var(--td-border-bottom) !important;
+    border-right: 1px solid var(--td-border-right) !important;
+    border-top: none !important;
+    border-left: none !important;
+    vertical-align: top !important;
+    color: var(--td-color) !important;
+    background-color: transparent !important;
+    transition: background-color 0.15s ease !important;
   }
 
   /* 最后一列不需要右边框 */
@@ -244,12 +654,12 @@ th, td {
 
   /* 表格行悬停效果 - 增强交互体验 */
   tbody tr:hover td {
-      background-color: #f8f9fa !important;
+    background-color: var(--td-hover-bg) !important;
   }
 
   /* 轻微的斑马纹效果 - 提高可读性 */
   tbody tr:nth-child(even) td {
-      background-color: #fbfcfd !important;
+    background-color: var(--td-even-bg) !important;
   }
 
   /* 居中对齐的内容 */
@@ -260,14 +670,14 @@ th, td {
 
   /* 表格内链接样式 */
   a {
-      text-decoration: none !important;
-      color: #007bff !important;
-      transition: color 0.2s ease !important;
+    text-decoration: none !important;
+    color: var(--link-color) !important;
+    transition: color 0.2s ease !important;
   }
 
   a:hover {
-      color: #0056b3 !important;
-      text-decoration: underline !important;
+    color: var(--link-hover) !important;
+    text-decoration: underline !important;
   }
 
   /* 竖向合并单元格垂直居中样式 */
@@ -313,14 +723,29 @@ th, td {
       display: none; 
   }
 
+  /* 磨砂遮罩层（挖空未揭示时的毛玻璃效果） */
+  .cloze-frosted {
+    position: absolute;
+    inset: 0;
+    border-radius: 0.5em;
+    backdrop-filter: blur(var(--frosted-blur));
+    -webkit-backdrop-filter: blur(var(--frosted-blur));
+    background-color: var(--frosted-bg);
+    pointer-events: none;
+    z-index: 101;
+    line-height: 1.6em;
+  }
+
   /* 主要挖空容器样式 */
   .cloze {
       display: inline-block;
       max-width: 100%; /* 防止元素超出父容器宽度 */
       box-sizing: border-box; /* 确保 padding 和 border 不会增加元素的总宽度 */
-      background-color: rgba(255, 255, 214, 0.8);
+      //background-color: rgba(255, 255, 214, 0.8);
+      background-color: var(--cloze-bg);
       padding: 0.1em 0.3em;
-      border: 0.1em solid green;
+      //border: 0.1em solid green;
+      border: 0.1em solid var(--cloze-border);
       border-radius: 0.5em;
       box-shadow: 0px 1px 3px rgba(255, 255, 255, 0.5);
       cursor: pointer;
@@ -336,17 +761,20 @@ th, td {
   }
 
   .cloze::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.1); /* 滚动条轨道颜色 */
+     // background: rgba(0, 0, 0, 0.1); /* 滚动条轨道颜色 */
+      background: var(--cloze-track);
       border-radius: 4px;
   }
 
   .cloze::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.4); /* 滚动条滑块颜色 */
+     // background: rgba(0, 0, 0, 0.4); /* 滚动条滑块颜色 */
+      background: var(--cloze-thumb);
       border-radius: 4px;
   }
 
   .cloze::-webkit-scrollbar-thumb:hover {
-      background: rgba(0, 0, 0, 0.6); /* 鼠标悬停时滑块颜色 */
+     // background: rgba(0, 0, 0, 0.6); /* 鼠标悬停时滑块颜色 */
+     background: var(--cloze-thumb-hover);
   }
 
  
@@ -396,8 +824,8 @@ cloze2.reveal-cloze2:not(.cloze cloze2) {
     opacity: 1;
     overflow: visible;
     display: inline-block;
-    border: 0.1em solid #9ec9f3; /* 使用淡蓝色边框 */
-    background-color: #eef1fc; /* 设置背景颜色 */
+    border: 0.1em solid var(--reveal-border);
+    background-color: var(--reveal-bg);
     padding-left: 0.3em;
     padding-right: 0.3em;
     cursor: pointer;
@@ -425,7 +853,7 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w) {
 cloze2_w:not(.cloze cloze2_w)::before {
 	content: "~~"; /* 设置伪元素的内容为≈符号 */
   cursor: pointer;
-	color:blue;
+  color: var(--cloze2_w-color);
 	font-size: 1.5em; /* 设置伪元素的文本大小为原来的1.5倍 */
 	position: relative;
 	z-index: 101;
@@ -483,17 +911,20 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
   }
 
   cloze2.reveal-cloze2::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.1);
+     // background: rgba(0, 0, 0, 0.1);
+      background: var(--reveal-track);
       border-radius: 4px;
   }
 
   cloze2.reveal-cloze2::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.4);
+     // background: rgba(0, 0, 0, 0.4);
+      background: var(--reveal-thumb);
       border-radius: 4px;
   }
 
   cloze2.reveal-cloze2::-webkit-scrollbar-thumb:hover {
-      background: rgba(0, 0, 0, 0.6);
+        background: var(--reveal-thumb-hover);
+     // background: rgba(0, 0, 0, 0.6);
   }
 
 
@@ -568,9 +999,10 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
 	height: 0;
 	position: fixed;
 	top: 0px;
-	width: calc(100% - 60px); /* 减去左右边距 */
-	left:20px;
-	background-color: rgba(250, 250, 250, 1);
+	width: calc(100% - 400px); /* 减去左右边距 */
+	left:200px;
+	//background-color: rgba(250, 250, 250, 1);
+  background-color: var(--searchbox-bg);
 	border-radius: 10px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
 	padding: 5px;
@@ -584,10 +1016,25 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
     cursor: grabbing;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
+
+  /* ── 行容器（第一行:搜索/导航，第二行:工具） ── */
+  .sb-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  /* 弹性空格：将右侧按钮推到末尾 */
+  .sb-spacer {
+    flex: 1;
+  }
+
 .search-box input[type="text"] {
-	border: 1px solid #e0e0e0;
 	border-radius: 5px;
-	background-color: rgba(250, 250, 250, .5);
+  border: 1px solid var(--searchinput-border);
+  background-color: var(--searchinput-bg);
+  color: var(--body-color);
 	padding: 10px;
 	font-size: 14px;
 	width: calc(100%);
@@ -596,17 +1043,70 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
   user-select: auto;
 }
 
+ .search-box input[type="text"]:focus {
+    border-color: var(--marker-color);
+  }
+
 .search-box button {
-	border: none;
+	background-color: var(--searchinput-bg);
+  color: var(--floating-color);
+  border: 1px solid var(--searchinput-border);
 	border-radius: 5px;
-	padding: 10px 10px;
-	font-size: 14px;
 	cursor: pointer;
 	transition: transform 0.2s;
 	margin-top:1em;
   cursor: auto;
   user-select: auto;
 }
+
+  /* 主操作按钮：搜索 */
+  #searchButton {
+    background-color: var(--marker-color);
+  }
+#searchButton:hover {
+    background-color: white;
+    color: var(--marker-color);
+    border: 1px solid var(--marker-color);
+}
+
+  /* 导航按钮 ↑ ↓ */
+  #prevMark, #nextMark {
+    padding: 5px 10px;
+    background-color:  var(--marker-color);
+    
+  }
+ #prevMark:hover, #nextMark:hover {
+    background-color: white;
+    color: var(--marker-color);
+    border: 1px solid var(--marker-color);
+}
+
+  /* 外部搜索（轮廓风格，颜色跟随色系主色） */
+  #externalSearch1, #externalSearch2,#externalSearch3, #externalSearch4,#externalSearch5, #externalSearch6 {
+    background-color: transparent;
+    color: var(--marker-color);
+    border-color: var(--marker-color);
+    font-weight: 500;
+  }
+
+
+
+  /* 主题切换 */
+  #themeToggle {
+    background-color: transparent;
+    color: var(--floating-color);
+    border-color: var(--searchinput-border);
+
+  }
+
+
+  /* 收起面板 */
+  #hideSearchBox {
+
+    background-color: transparent;
+    border-color: var(--searchinput-border);
+    color: var(--floating-color);
+  }
 
 #searchResults {
 	color: black; /* 文字颜色 */
@@ -626,18 +1126,22 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
 	transform: scale(0.98);
 }
 
-.search-box .search-results {
-	color: #8e8e93;
-	font-size: 14px;
-	text-align: center;
-}
+  /* ── 搜索结果计数 ── */
+  .search-box .search-results {
+    font-size: 12px;
+    color: var(--floating-color);
+    white-space: nowrap;
+    min-width: 34px;
+    text-align: center;
+    user-select: none;
+  }
 
-.current {
-	background-color: orange; /* Change the color to make it more noticeable */
-	color: #000; /* Change text color if needed */
-	border: 2px solid red; /* Optional: add border to enhance visibility */
-}
-
+  /* ── 高亮当前搜索结果 ── */
+  .current {
+    background-color: orange;
+    color: #000;
+    border: 2px solid red;
+  }
 
 
   /* =====================================
@@ -655,10 +1159,12 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
     gap: 0px;
     max-height: 100vh;
     overflow-y: auto;
+
 }
 
 
 .popup-badge {
+
     opacity: 0.2;
     display: flex;
     align-items: center;
@@ -784,15 +1290,15 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
     height: 32px;
     border-radius: 50%;
     border: none;
-    background: transparent;
     font-size: 20px;
-    color: #8c8c8c;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
     outline: none;
+    background-color: var(--floating-bg);
+    color: var(--floating-color);
 }
 
 .popup-close:hover {
@@ -805,11 +1311,11 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
     overflow-y: auto;
     font-size: 14px;
     line-height: 1.6;
-    color: #262626;
-    background:#F5F5DC;
     cursor: auto;
     user-select: auto;
     flex: 1;
+    background-color: var(--floating-bg);
+    color: var(--floating-color);
 
 }
 
@@ -859,7 +1365,8 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
       line-height: 40px;
       font-size: 26px;
       font-weight: 500;
-      border-bottom: 1px solid #e5e6e8;
+      color: var(--title-color);
+      border-bottom: 1px solid var(--title-border);
   }
 
   .node-list {
@@ -886,7 +1393,7 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
       padding-bottom: 2px;
       line-height: 22px;
       font-size: 14px;
-      color: #888;
+      color: var(--note-color);
       white-space: pre-wrap;
   }
 
@@ -923,61 +1430,68 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
   }
 
 
-  /* 高亮样式 */
+   /* 高亮样式（日间） */
   .content .highlight-red,
   .highlight-red > .content > * {
-      background-color: #fbbfbc;
+    background-color: var(--hi-red-bg);
+    color: var(--hi-red-color);
   }
 
   .content .highlight-yellow,
   .highlight-yellow > .content > * {
-      background-color: #f8e6ab;
+    background-color: var(--hi-yellow-bg);
+    color: var(--hi-yellow-color);
   }
 
   .content .highlight-blue,
   .highlight-blue > .content > * {
-      background-color: #bacefd;
+    background-color: var(--hi-blue-bg);
+    color: var(--hi-blue-color);
   }
 
   .content .highlight-cyan,
   .highlight-cyan > .content > * {
-      background-color: #a9efe6;
+    background-color: var(--hi-cyan-bg);
+    color: var(--hi-cyan-color);
   }
 
   .content .highlight-pink,
   .highlight-pink > .content > * {
-      background-color: #fdddef;
+    background-color: var(--hi-pink-bg);
+    color: var(--hi-pink-color);
   }
 
   .content .highlight-olive,
   .highlight-olive > .content > * {
-      background-color: #bbbfc4;
+    background-color: var(--hi-olive-bg);
+    color: var(--hi-olive-color);
   }
 
   .content .highlight-grey,
   .highlight-grey > .content > * {
-      background-color: #bbbfc4;
+    background-color: var(--hi-grey-bg);
+    color: var(--hi-grey-color);
   }
 
   /* 文字颜色 */
   .text-color-red {
-      color: #dc2d1e;
+    color: var(--txt-red);
   }
 
   .text-color-yellow {
-      color: #ffaf38;
+    color: var(--txt-yellow);
   }
 
   .text-color-green {
-      color: #75c940;
+    color: var(--txt-green);
   }
 
   .text-color-blue {
-      color: #3da8f5;
+    color: var(--txt-blue);
   }
 
   .text-color-purple {
-      color: #797ec9;
+    color: var(--txt-purple);
   }
 
   /* 项目符号样式 */
@@ -1010,7 +1524,7 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
       top: 9px;
       width: 3px;
       height: 3px;
-      background-color: rgb(100, 106, 115);
+      background-color: var(--bullet-dot-color);
       border-radius: 3px;
   }
 
@@ -1027,8 +1541,43 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
       padding-bottom: 8px;
   }
 
+  .children {
+    position: relative;
+  }
 
+  /* 树形层级线（虚线） */
+  .note::before,
+  .image-list::before,
+  .children::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -13px;
+    width: 1px;
+    height: 100%;
+    background-color: transparent;
+    background-image: linear-gradient(var(--treeline-color) 10%, rgba(255, 255, 255, 0) 0%);
+    background-size: 1px 4px;
+  }
 
+  .mention {
+    padding-left: 2px;
+    padding-right: 2px;
+    color: var(--mention-color);
+    word-break: break-all;
+    text-decoration: none;
+  }
+
+  .content-link {
+    color: unset;
+    opacity: 0.6;
+    word-break: break-all;
+  }
+
+  .tag {
+    text-decoration: underline;
+    opacity: 0.6;
+  }
 
   /* =====================================
     完整的node折叠
@@ -1056,11 +1605,11 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
     图标字体样式
     ===================================== */
   .mm-iconfont::before {
-      font-family: 'mm-iconfont', sans-serif !important;
-      font-size: 16px;
-      font-style: normal;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+    font-family: 'mm-iconfont', sans-serif !important;
+    font-size: 16px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .mention[data-type='1']::before,
@@ -1070,43 +1619,43 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
   .mention[data-type='12']::before,
   .mention[data-type='15']::before,
   .mention[data-type='16']::before {
-      content: '\e62f';
-      display: inline-block;
-      vertical-align: middle;
-      margin-top: -4px;
-      font-size: inherit;
+    content: '\e62f';
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: -4px;
+    font-size: inherit;
   }
 
   .mention[data-type='3']::before {
-      content: '\e62c';
+    content: '\e62c';
   }
 
   .mention[data-type='8']::before {
-      content: '\e62d';
+    content: '\e62d';
   }
 
   .mention[data-type='11']::before {
-      content: '\e62b';
+    content: '\e62b';
   }
 
   .mention[data-type='12']::before {
-      content: '\e62a';
+    content: '\e62a';
   }
 
   .mention[data-type='15']::before {
-      content: '\e62e';
+    content: '\e62e';
   }
 
   .mention[data-type='22']::before {
-      content: '\e602';
+    content: '\e602';
   }
 
   .node .mention.mm-iconfont::before {
-      content: '\e601';
+    content: '\e601';
   }
 
   .node .mention.mm-iconfont {
-      color: #5856d5;
+    color: var(--mention-color);
   }
 
   /* =====================================
@@ -1120,7 +1669,7 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
     touch-action: pan-y !important;
     position: absolute;
     padding: 10px 15px;
-    background-color: #fff;
+    background-color: var(--tooltip-bg);
     border-radius: 8px;
     line-height: 1.4;
     max-width: 10vw;
@@ -1294,100 +1843,338 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
 
   /* 夜间模式 - 搜索框样式 */
   .nightMode .search-box {
-      background-color: rgba(44, 44, 44, 1);
-      color: white;
+    background-color: #2a2a2a;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.25);
   }
 
   .nightMode .search-box input[type="text"] {
-      background-color: rgba(50, 50, 50, .5);
-      border: 1px solid #555;
-      color: white;
+    background-color: #1e1e1e;
+    border-color: #444;
+    color: #ddd;
+  }
+
+  .nightMode .search-box input[type="text"]:focus {
+    border-color: #5a8fd8;
   }
 
   .nightMode .search-box button {
-      background-color: #444;
-      color: white;
+    background-color: #383838;
+    color: #ccc;
+    border-color: #4a4a4a;
   }
 
-  .nightMode .search-box button:first-of-type,
-  .nightMode .search-box button:nth-of-type(2),
-  .nightMode .search-box button:nth-of-type(3) {
-      background-color: rgba(0, 122, 255, 0.6);
+  /* 搜索主按钮 */
+  .nightMode #searchButton {
+    background-color: #3a6db5;
+    color: #fff;
+    border-color: transparent;
   }
 
-  .nightMode .search-box button:last-of-type,
-  .nightMode .search-box button:nth-last-of-type(2) {
-      border: 1px solid #555;
+  /* 外部搜索按钮（公/事） */
+  .nightMode #externalSearch1,
+  .nightMode #externalSearch2,
+  .nightMode #externalSearch3,
+  .nightMode #externalSearch4,   
+  .nightMode #externalSearch5,
+  .nightMode #externalSearch6 {
+    background-color: transparent;
+    color: #7aadda;
+    border-color: #5a8fd8;
   }
 
-  .nightMode #searchResults {
-      color: white;
-  }
-
+  /* 搜索结果计数 */
+  .nightMode #searchResults,
   .nightMode .search-box .search-results {
-      color: #bbb;
+    color: #999;
   }
 
 
-  /* 夜间模式 - 表格样式 */
+  /* 夜间模式 - 表格 */
   .nightMode table {
-      background-color: #1e1e1e !important;
-      border: 1px solid #333333 !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+    background-color: #1e1e1e !important;
+    border: 1px solid #333333 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
   }
 
   .nightMode th {
-      background-color: #2a2a2a !important;
-      color: #e0e0e0 !important;
-      border-bottom: 1px solid #404040 !important;
-      border-right: 1px solid #333333 !important;
-      border-top: none !important;
-      border-left: none !important;
+    background-color: #2a2a2a !important;
+    color: #e0e0e0 !important;
+    border-bottom: 1px solid #404040 !important;
+    border-right: 1px solid #333333 !important;
+    border-top: none !important;
+    border-left: none !important;
   }
 
   .nightMode th:last-child {
-      border-right: none !important;
+    border-right: none !important;
   }
 
   .nightMode td {
-      color: #cccccc !important;
-      border-bottom: 1px solid #2a2a2a !important;
-      border-right: 1px solid #262626 !important;
-      border-top: none !important;
-      border-left: none !important;
-      background-color: transparent !important;
+    color: #cccccc !important;
+    border-bottom: 1px solid #2a2a2a !important;
+    border-right: 1px solid #262626 !important;
+    border-top: none !important;
+    border-left: none !important;
+    background-color: transparent !important;
   }
 
   .nightMode td:last-child {
-      border-right: none !important;
+    border-right: none !important;
   }
 
   .nightMode tbody tr:hover td {
-      background-color: #262626 !important;
+    background-color: #262626 !important;
   }
 
   .nightMode tbody tr:nth-child(even) td {
-      background-color: #222222 !important;
+    background-color: #222222 !important;
   }
 
   .nightMode a {
-      color: #64b5f6 !important;
+    color: #64b5f6 !important;
   }
 
   .nightMode a:hover {
-      color: #90caf9 !important;
+    color: #90caf9 !important;
   }
 
-  /* 夜间模式 - 高亮样式调整 */
+  /* 夜间模式 - 高亮 */
   .nightMode .content .highlight-yellow,
   .nightMode .highlight-yellow > .content > * {
-      background-color: #b69f54;
+    background-color: #b69f54;
   }
 
-  /* 夜间模式 - 数学公式样式 */
+  /* 夜间模式 - 数学公式 */
   .nightMode mo[fence="true"] {
-      color: inherit;
+    color: inherit;
   }
+
+  /* 夜间模式 - 根式样式（保持与日间模式一致的间距和自动伸缩） */
+  .nightMode msqrt,
+  .nightMode mroot {
+    margin: 0.1em 0.2em;
+    line-height: 1.3;
+    vertical-align: middle;
+    font-size: 1.3em;
+    transform: scaleY(1.0);
+    transform-origin: center;
+  }
+
+  .nightMode .cloze msqrt,
+  .nightMode .cloze mroot,
+  .nightMode cloze2.reveal-cloze2 msqrt,
+  .nightMode cloze2.reveal-cloze2 mroot {
+    vertical-align: -0.45em;
+    line-height: 1.3;
+    font-size: 1.3em;
+    transform: scaleY(1.0);
+    transform-origin: center;
+  }
+
+  /* 夜间模式 - 根式自动伸缩 */
+  .nightMode msqrt:has(mfrac),
+  .nightMode mroot:has(mfrac) {
+    font-size: 1.8em;
+    transform: scale(1.1, 1.1);
+    transform-origin: center;
+  }
+
+  .nightMode msqrt:has(mfrac) > *,
+  .nightMode mroot:has(mfrac) > *:first-child {
+    font-size: calc(0.75em / 1.1);
+  }
+
+  .nightMode msqrt:has(mfrac) > * *,
+  .nightMode mroot:has(mfrac) > *:first-child * {
+    font-size: calc(0.75em / 1.1);
+  }
+
+  .nightMode msqrt:has(mfrac mfrac),
+  .nightMode mroot:has(mfrac mfrac),
+  .nightMode msqrt:has(mfrac mrow),
+  .nightMode mroot:has(mfrac mrow) {
+    font-size: 1.5em;
+    transform: scaleY(1.2);
+    transform-origin: center;
+  }
+
+  .nightMode msqrt:has(mfrac mfrac) > *,
+  .nightMode mroot:has(mfrac mfrac) > *:first-child,
+  .nightMode msqrt:has(mfrac mrow) > *,
+  .nightMode mroot:has(mfrac mrow) > *:first-child {
+    font-size: calc(0.75em / 1.5);
+  }
+
+  .nightMode msqrt:has(mfrac mfrac) > * *,
+  .nightMode mroot:has(mfrac mfrac) > *:first-child *,
+  .nightMode msqrt:has(mfrac mrow) > * *,
+  .nightMode mroot:has(mfrac mrow) > *:first-child * {
+    font-size: calc(0.75em / 1.5);
+  }
+
+  .nightMode msqrt:has(mtable),
+  .nightMode mroot:has(mtable) {
+    font-size: 1.8em;
+    transform: scaleY(1.3);
+    transform-origin: center;
+  }
+
+  .nightMode msqrt:has(mtable) > *,
+  .nightMode mroot:has(mtable) > *:first-child {
+    font-size: calc(0.75em / 1.8);
+  }
+
+  .nightMode msqrt:has(mtable) > * *,
+  .nightMode mroot:has(mtable) > *:first-child * {
+    font-size: calc(0.75em / 1.8);
+  }
+
+  .nightMode .cloze msqrt:has(mfrac),
+  .nightMode .cloze mroot:has(mfrac),
+  .nightMode cloze2.reveal-cloze2 msqrt:has(mfrac),
+  .nightMode cloze2.reveal-cloze2 mroot:has(mfrac) {
+    font-size: 1.8em;
+    transform: scale(1.1, 1.1);
+    transform-origin: center;
+  }
+
+  .nightMode .cloze msqrt:has(mfrac) > *,
+  .nightMode .cloze mroot:has(mfrac) > *:first-child,
+  .nightMode cloze2.reveal-cloze2 msqrt:has(mfrac) > *,
+  .nightMode cloze2.reveal-cloze2 mroot:has(mfrac) > *:first-child {
+    font-size: calc(0.75em / 1.1);
+  }
+
+  .nightMode .cloze msqrt:has(mfrac) > * *,
+  .nightMode .cloze mroot:has(mfrac) > *:first-child *,
+  .nightMode cloze2.reveal-cloze2 msqrt:has(mfrac) > * *,
+  .nightMode cloze2.reveal-cloze2 mroot:has(mfrac) > *:first-child * {
+    font-size: calc(0.75em / 1.1);
+  }
+
+  .nightMode .cloze msqrt:has(mfrac mfrac),
+  .nightMode .cloze mroot:has(mfrac mfrac),
+  .nightMode cloze2.reveal-cloze2 msqrt:has(mfrac mfrac),
+  .nightMode cloze2.reveal-cloze2 mroot:has(mfrac mfrac) {
+    font-size: 1.5em;
+    transform: scaleY(1.2);
+    transform-origin: center;
+  }
+
+  .nightMode .cloze msqrt:has(mfrac mfrac) > *,
+  .nightMode .cloze mroot:has(mfrac mfrac) > *:first-child,
+  .nightMode cloze2.reveal-cloze2 msqrt:has(mfrac mfrac) > *,
+  .nightMode cloze2.reveal-cloze2 mroot:has(mfrac mfrac) > *:first-child {
+    font-size: calc(1em / 1.5);
+  }
+
+  .nightMode .cloze msqrt:has(mfrac mfrac) > * *,
+  .nightMode .cloze mroot:has(mfrac mfrac) > *:first-child *,
+  .nightMode cloze2.reveal-cloze2 msqrt:has(mfrac mfrac) > * *,
+  .nightMode cloze2.reveal-cloze2 mroot:has(mfrac mfrac) > *:first-child * {
+    font-size: calc(1em / 1.5);
+  }
+
+  .nightMode .cloze msqrt:has(mtable),
+  .nightMode .cloze mroot:has(mtable),
+  .nightMode cloze2.reveal-cloze2 msqrt:has(mtable),
+  .nightMode cloze2.reveal-cloze2 mroot:has(mtable) {
+    font-size: 1.8em;
+    transform: scaleY(1.3);
+    transform-origin: center;
+  }
+
+  .nightMode .cloze msqrt:has(mtable) > *,
+  .nightMode .cloze mroot:has(mtable) > *:first-child,
+  .nightMode cloze2.reveal-cloze2 msqrt:has(mtable) > *,
+  .nightMode cloze2.reveal-cloze2 mroot:has(mtable) > *:first-child {
+    font-size: calc(1em / 1.8);
+  }
+
+  .nightMode .cloze msqrt:has(mtable) > * *,
+  .nightMode .cloze mroot:has(mtable) > *:first-child *,
+  .nightMode cloze2.reveal-cloze2 msqrt:has(mtable) > * *,
+  .nightMode cloze2.reveal-cloze2 mroot:has(mtable) > *:first-child * {
+    font-size: calc(1em / 1.8);
+  }
+
+  .nightMode msqrt > *,
+  .nightMode mroot > *:first-child {
+    margin-left: 0.15em;
+    font-size: 0.75em;
+    vertical-align: baseline;
+  }
+
+  .nightMode .cloze msqrt > *,
+  .nightMode .cloze mroot > *:first-child,
+  .nightMode cloze2.reveal-cloze2 msqrt > *,
+  .nightMode cloze2.reveal-cloze2 mroot > *:first-child {
+    margin-left: 0.15em;
+    font-size: 0.75em;
+    vertical-align: baseline;
+  }
+
+  .nightMode mroot > *:last-child {
+    font-size: 0.4em;
+    margin-right: 0em;
+    vertical-align: top;
+    position: relative;
+    left: 0.5em;
+    top: -0.3em;
+  }
+
+  .nightMode .cloze mroot > *:last-child,
+  .nightMode cloze2.reveal-cloze2 mroot > *:last-child {
+    font-size: 0.4em;
+    margin-right: 0em;
+    vertical-align: top;
+    position: relative;
+    left: 0.5em;
+    top: -0.3em;
+  }
+
+  /* 夜间模式 - 提示框 */
+  .nightMode .tooltip {
+    background-color: #333;
+    border: 1px solid #555;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+  }
+
+  /* 夜间模式 - 基础背景与文字 */
+  body.nightMode {
+    background-color: #242424;
+    color: #e0e0e0;
+  }
+
+  .nightMode .note {
+    position: relative;
+    padding-bottom: 2px;
+    line-height: 22px;
+    font-size: 14px;
+    color: #888;
+    white-space: pre-wrap;
+  }
+
+  /* 夜间模式 - 树形层级线 */
+  .nightMode .note::before,
+  .nightMode .image-list::before,
+  .nightMode .children::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -13px;
+    width: 1px;
+    height: 100%;
+    background-color: transparent;
+    background-image: linear-gradient(grey 10%, rgba(255, 255, 255, 0) 0%);
+    background-size: 1px 4px;
+  }
+
+  /* 夜间模式 - 磨砂遮罩 */
+  .nightMode .cloze-frosted {
+    background-color: rgba(45, 45, 45, 0.55);
+  }
+
 
 
   /* ===== 弹窗夜间模式 ===== */
@@ -1428,7 +2215,8 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
 }
 
 .nightMode .popup-close {
-    color: #a0aec0;
+    color:  #e0e0e0 ;
+    background: #2d3748 ;
 }
 
 .nightMode .popup-close:hover {
@@ -1502,7 +2290,6 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
     border-color: #63b3ed;
     color: white;
 }
-
 
 
 
