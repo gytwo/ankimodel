@@ -2,6 +2,82 @@
     最新这是Anki卡片基本模板（文本系统）
     功能：anki原生cloze(多卡多空)、划线挖空（单卡多空）、大纲伸缩、卡片链接、卡内搜索、智能定位、弹窗管理、word注释/引用处理
     ============================================ -->
+
+<script>
+  /*
+   * 存储模块：ankiStorage 设计模式
+   * 提供统一的配置读写接口，localStorage 优先，window 对象回退（防止 localStorage 被禁用）
+   * 配置项统一使用 'anki_cfg_' 前缀，与参考模板键名规范保持一致
+   */
+  window.ankiStorage = window.ankiStorage || (function () {
+    var P = 'anki_cfg_'; /* 配置项键名前缀 */
+    return {
+      setConfig: function (k, v) {
+        try { localStorage.setItem(P + k, JSON.stringify(v)); }
+        catch (e) { window['_acfg_' + k] = v; }
+      },
+      getConfig: function (k) {
+        try {
+          var v = localStorage.getItem(P + k);
+          return v !== null ? JSON.parse(v) : undefined;
+        } catch (e) { return window['_acfg_' + k]; }
+      }
+    };
+  })();
+
+/* 主题初始化 */
+(function () {
+    var saved = window.ankiStorage.getConfig('cardTheme') || '1';
+    var htmlEl = document.documentElement;
+    htmlEl.classList.remove('theme-dousha', 'theme-zhulu', 'theme-xiangya', 'theme-danya', 'theme-dailv', 'theme-yase');
+    if (saved === '1') htmlEl.classList.add('theme-dousha');
+    else if (saved === '2') htmlEl.classList.add('theme-zhulu');
+    else if (saved === '3') htmlEl.classList.add('theme-xiangya');
+    else if (saved === '4') htmlEl.classList.add('theme-danya');
+    else if (saved === '5') htmlEl.classList.add('theme-dailv');
+    else htmlEl.classList.add('theme-yase');
+})();
+
+/* 主题切换函数 */
+function toggleTheme() {
+    var htmlEl = document.documentElement;
+    
+    var current = 'dousha';
+    if (htmlEl.classList.contains('theme-zhulu')) current = 'zhulu';
+    else if (htmlEl.classList.contains('theme-xiangya')) current = 'xiangya';
+    else if (htmlEl.classList.contains('theme-danya')) current = 'danya';
+    else if (htmlEl.classList.contains('theme-dailv')) current = 'dailv';
+    else if (htmlEl.classList.contains('theme-yase')) current = 'yase';
+    
+    var next = '';
+    if (current === 'dousha') next = 'zhulu';
+    else if (current === 'zhulu') next = 'xiangya';
+    else if (current === 'xiangya') next = 'danya';
+    else if (current === 'danya') next = 'dailv';
+    else if (current === 'dailv') next = 'yase';
+    else next = 'dousha';
+    
+    htmlEl.classList.remove('theme-dousha', 'theme-zhulu', 'theme-xiangya', 'theme-danya', 'theme-dailv', 'theme-yase');
+    htmlEl.classList.add('theme-' + next);
+    
+    var themeNum = next === 'dousha' ? '1' : (next === 'zhulu' ? '2' : (next === 'xiangya' ? '3' : (next === 'danya' ? '4' : (next === 'dailv' ? '5' : '6'))));
+    if (window.ankiStorage) {
+        window.ankiStorage.setConfig('cardTheme', themeNum);
+    }
+    
+    var btn = document.getElementById('themeToggle');
+    if (btn) {
+        if (next === 'dousha') btn.textContent = '豆沙';
+        else if (next === 'zhulu') btn.textContent = '竹露';
+        else if (next === 'xiangya') btn.textContent = '象牙';
+        else if (next === 'danya') btn.textContent = '淡雅';
+        else if (next === 'dailv') btn.textContent = '黛绿';
+        else btn.textContent = '牙色';
+    }
+}
+</script>
+
+
 <!-- ========== 控制按钮 ========== -->
 <div class="popup-badges-container">
 
@@ -50,21 +126,29 @@
     {{#笔记}}<div class="popup-container" id="note-popup"><div class="popup-header"><div class="popup-title"><span class="popup-title-icon">✏️</span><span class="popup-title-text">手写笔记</span></div><button class="popup-close" id="note-close">×</button></div><div class="popup-content area linkRender">{{笔记}}</div></div> {{/笔记}}
     {{#归纳}}<div class="popup-container" id="conclude-popup"><div class="popup-header"><div class="popup-title"><span class="popup-title-icon">🧠</span><span class="popup-title-text">表格归纳</span></div><button class="popup-close" id="conclude-close">×</button></div><div class="popup-content area linkRender">{{归纳}}</div></div> {{/归纳}}
 
-
 <!-- ========== 搜索区域 ========== -->
     <div class="search-box" id="searchBox">
-    <div class="search-results" id="searchResults">0/0</div>
-    <input type="text" id="search" placeholder="输入搜索内容">
-    <button id="searchButton">搜</button>
-    <button id="prevMark">↑</button>
-    <button id="nextMark">↓</button>
-    <button id="externalSearch1">公</button>
-    <button id="externalSearch2">事</button>
-    <button id="externalSearch6">强</button>
-    <button id="externalSearch3">会</button>
-    <button id="externalSearch4">法</button>
-    <button id="externalSearch5">AI</button>
-    <button id="hideSearchBox">❌</button>
+          <!-- 第一行：搜索输入框 + 主操作按钮 + 导航 + 计数 -->
+          <div class="sb-row">
+            <input type="text" id="search" placeholder="输入搜索内容…">
+            <button id="searchButton">搜</button>
+            <button id="prevMark">↑</button>
+            <div class="search-results" id="searchResults">0/0</div>
+            <button id="nextMark">↓</button>
+          </div>
+          <!-- 第二行：功能按钮区（左:外部搜索/展折，右:主题/清除/收起） -->
+          <div class="sb-row">
+            <button id="externalSearch1">公</button>
+            <button id="externalSearch2">事</button>
+            <button id="externalSearch6">强</button>
+            <button id="externalSearch3">会</button>
+            <button id="externalSearch4">法</button>
+            <button id="externalSearch5">AI</button>
+            <span class="sb-spacer"></span>
+            <!-- 主题色系切换按钮：显示当前色系名称，点击切换并记忆偏好 -->
+            <button id="themeToggle" onclick="toggleTheme()">象牙笺</button>
+            <button id="hideSearchBox">❌</button>
+         </div>
 </div>
 
 <!-- ========== 一、页眉设置========== -->
@@ -1167,7 +1251,20 @@ function scrollToElement() {
 <script>
 $(document).ready(function() {
     var totalMarks = 0, currentMark = 0, tickExecuted = false;
-    
+     /* 同步主题切换按钮文字为当前实际色系（读取 ankiStorage） */
+(function () {
+    var saved = (window.ankiStorage && window.ankiStorage.getConfig('cardTheme')) || '1';
+    var btn = document.getElementById('themeToggle');
+    if (btn) {
+        if (saved === '1') btn.textContent = '豆沙';
+        else if (saved === '2') btn.textContent = '竹露';
+        else if (saved === '3') btn.textContent = '象牙';
+        else if (saved === '4') btn.textContent = '淡雅';
+        else if (saved === '5') btn.textContent = '黛绿';
+        else btn.textContent = '牙色';
+    }
+})();
+
     $('.searchbtn').click(function() {
         toggleSearchBox();
     });
@@ -5688,7 +5785,6 @@ bindMarkEvents(markElement, type) {
 window.NoteMarkSystemClass = NoteMarkSystem;
 window.NoteMarkUtils = { showMessage: showMessage, escapeHtml: escapeHtml };
 </script>
-
 
 
 
