@@ -82,30 +82,6 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
             </ul>
         </div>
         <div class="guide-card-container">
-            <div class="guide-card-title blue">
-                <span>🚀</span>
-                <span>核心操作步骤</span>
-            </div>
-            <ul class="guide-step-list">
-                <li class="guide-step-item">
-                    <span class="guide-step-icon">1</span>
-                    <span><strong>点击图片：</strong>激活快捷工具栏【若点击图片无反应请点击左上角重启按钮重启图片系统】</span>
-                </li>
-                <li class="guide-step-item">
-                    <span class="guide-step-icon">2</span>
-                    <span><strong>选择工具：</strong>选择画笔/橡皮/遮罩进行编辑【所有按钮鼠标悬停时都会显示提示信息】</span>
-                </li>
-                <li class="guide-step-item">
-                    <span class="guide-step-icon">3</span>
-                    <span><strong>数据同步：</strong>编辑后点击"📤Cur"按钮复制当前卡片图片数据后黏贴到ImageClozeData字段实现跨设备同步</span>
-                </li>
-                <li class="guide-step-item">
-                    <span class="guide-step-icon">4</span>
-                    <span><strong>更多工具：</strong>请打开主菜单【点击右上角工具箱图标或者工具栏上的工具箱图标】，编辑工具可以选择画笔颜色、粗细、橡皮大小、遮罩颜色。点击数据管理可以查看详细数据列表【点击具体条目可自动激活并直接跳转至该图片，点击条目后面的编辑/添加备注小图标也能实现自动激活及跳转，并自动打开备注框以便编辑备注】、数据统计情况【统计总体情况及失败列表：若点击某张图片无反应，重启系统也没有作用，请查看该失败列表（一般正常图片不会失败)】</span>
-                </li>
-            </ul>
-        </div>
-        <div class="guide-card-container">
             <div class="guide-card-title orange">
                 <span>⚠️</span>
                 <span>重要提醒</span>
