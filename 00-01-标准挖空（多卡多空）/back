@@ -2532,128 +2532,185 @@ function setupCompleteTooltipSystem() {
         // 第一步：收集所有area的内容
         document.querySelectorAll('.area').forEach((area, areaIndex) => {
             const areaMap = {
-                footnotes: new Map(),  // 脚注
-                msocomments: new Map(), // Word批注
-                ebooknotes: new Map()   // 电子书注释
+                footnotes: new Map(),      // 原有脚注
+                msocomments: new Map(),    // Word批注
+                ebooknotes: new Map(),     // 电子书注释
+                wordfootnotes: new Map(),  // Word脚注
+                wordendnotes: new Map()    // Word尾注
             };
             
-     // 收集脚注内容
-     area.querySelectorAll('a[href="javascript:void(0)"]').forEach(footLink => {
-    // 跳过有sup的（正文中的链接）
-    if (footLink.querySelector('sup')) return;
-    
-    const linkText = footLink.textContent.trim();
-    // 检查是否是脚注格式 "(1)"
-    if (!linkText.match(/^\(\d+\)$/)) return;
-    
-    const num = linkText.replace(/[()]/g, '').trim();
-    if (!num || isNaN(num)) return;
-    
-    // 🔥 参考原始代码逻辑：从footLink的父元素开始
-    let container = footLink.parentElement;
-    let contentElements = [];
-    let currentElement = container;
-    
-    // 收集直到遇到下一个脚注
-    while (currentElement && area.contains(currentElement)) {
-        // 检查是否遇到下一个脚注
-        const nextLinks = currentElement.querySelectorAll('a[href="javascript:void(0)"]');
-        let foundNextFootnote = false;
-        
-        for (const nextLink of nextLinks) {
-            if (nextLink === footLink || nextLink.querySelector('sup')) continue;
-            const nextText = nextLink.textContent.trim();
-            if (nextText.match(/^\(\d+\)$/)) {
-                const nextNum = nextText.replace(/[()]/g, '');
-                if (!isNaN(nextNum) && nextNum !== num) {
-                    foundNextFootnote = true;
-                    break;
+            // ========== 1. 收集原有脚注内容 ==========
+            area.querySelectorAll('a[href="javascript:void(0)"]').forEach(footLink => {
+                if (footLink.querySelector('sup')) return;
+                
+                const linkText = footLink.textContent.trim();
+                if (!linkText.match(/^\(\d+\)$/)) return;
+                
+                const num = linkText.replace(/[()]/g, '').trim();
+                if (!num || isNaN(num)) return;
+                
+                let container = footLink.parentElement;
+                let contentElements = [];
+                let currentElement = container;
+                
+                while (currentElement && area.contains(currentElement)) {
+                    const nextLinks = currentElement.querySelectorAll('a[href="javascript:void(0)"]');
+                    let foundNextFootnote = false;
+                    
+                    for (const nextLink of nextLinks) {
+                        if (nextLink === footLink || nextLink.querySelector('sup')) continue;
+                        const nextText = nextLink.textContent.trim();
+                        if (nextText.match(/^\(\d+\)$/)) {
+                            const nextNum = nextText.replace(/[()]/g, '');
+                            if (!isNaN(nextNum) && nextNum !== num) {
+                                foundNextFootnote = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (foundNextFootnote) break;
+                    contentElements.push(currentElement);
+                    currentElement = currentElement.nextElementSibling;
                 }
-            }
-        }
-        
-        if (foundNextFootnote) break;
-        contentElements.push(currentElement);
-        currentElement = currentElement.nextElementSibling;
-    }
-    
-    if (contentElements.length > 0) {
-        areaMap.footnotes.set(num, contentElements);
-    }
-});
+                
+                if (contentElements.length > 0) {
+                    areaMap.footnotes.set(num, contentElements);
+                }
+            });
             
-            // 收集Word批注内容
-    area.querySelectorAll('a[href^="#_msoanchor_"]').forEach(anchor => {
-    const href = anchor.getAttribute('href');
-    const match = href.match(/#_msoanchor_(\d+)/);
-    if (!match) return;
-    
-    const num = match[1];
-    
-    // 🔥 最简单的逻辑：直接从这个anchor的父div开始
-    let container = anchor.parentElement;
-    let contentElements = [];
-    let currentElement = container;
-    
-    // 收集直到遇到下一个批注或area边界
-    while (currentElement && area.contains(currentElement)) {
-        // 检查是否包含其他批注链接
-        const otherAnchors = currentElement.querySelectorAll(`a[href^="#_msoanchor_"]:not([href="#_msoanchor_${num}"])`);
-        if (otherAnchors.length > 0) {
-            break;
-        }
-        
-        contentElements.push(currentElement);
-        currentElement = currentElement.nextElementSibling;
-    }
-    
-    // 简单的清理
-    contentElements = contentElements.filter(el => {
-        const html = el.outerHTML.trim();
-        return html !== '<div><a></a></div>' && html !== '<div></div>';
-    });
-    
-    if (contentElements.length > 0) {
-        areaMap.msocomments.set(num, contentElements);
-        console.log(`成功收集批注${num}: ${contentElements.length}个元素`);
-    }
-});
+            // ========== 2. 收集Word批注内容 ==========
+            area.querySelectorAll('a[href^="#_msoanchor_"]').forEach(anchor => {
+                const href = anchor.getAttribute('href');
+                const match = href.match(/#_msoanchor_(\d+)/);
+                if (!match) return;
+                
+                const num = match[1];
+                
+                let container = anchor.parentElement;
+                let contentElements = [];
+                let currentElement = container;
+                
+                while (currentElement && area.contains(currentElement)) {
+                    const otherAnchors = currentElement.querySelectorAll(`a[href^="#_msoanchor_"]:not([href="#_msoanchor_${num}"])`);
+                    if (otherAnchors.length > 0) {
+                        break;
+                    }
+                    
+                    contentElements.push(currentElement);
+                    currentElement = currentElement.nextElementSibling;
+                }
+                
+                contentElements = contentElements.filter(el => {
+                    const html = el.outerHTML.trim();
+                    return html !== '<div><a></a></div>' && html !== '<div></div>';
+                });
+                
+                if (contentElements.length > 0) {
+                    areaMap.msocomments.set(num, contentElements);
+                    console.log(`成功收集Word批注${num}: ${contentElements.length}个元素`);
+                }
+            });
             
-    // 收集电子书注释内容
-    area.querySelectorAll('a[href*="#w"]').forEach(wLink => {
-    const href = wLink.getAttribute('href');
-    const match = href.match(/#w(\d+)/);
-    if (!match) return;
-    
-    const num = match[1];
-    
-    // 🔥 参考原始代码逻辑：从wLink的closest('div')开始
-    const container = wLink.closest('div');
-    if (!container) return;
-    
-    let contentElements = [];
-    let currentElement = container;
-    
-    // 收集直到遇到下一个电子书注释
-    while (currentElement && area.contains(currentElement)) {
-        const nextLink = currentElement.querySelector(`a[href*="#w"]`);
-        if (nextLink && nextLink !== wLink) {
-            const nextMatch = nextLink.getAttribute('href').match(/#w(\d+)/);
-            if (nextMatch && nextMatch[1] !== num) {
-                break;
-            }
-        }
-        
-        contentElements.push(currentElement);
-        currentElement = currentElement.nextElementSibling;
-    }
-    
-    if (contentElements.length > 0) {
-        areaMap.ebooknotes.set(num, contentElements);
-    }
-});
-
-               areaContentMap.set(areaIndex, areaMap);
+            // ========== 3. 收集电子书注释内容 ==========
+            area.querySelectorAll('a[href*="#w"]').forEach(wLink => {
+                const href = wLink.getAttribute('href');
+                const match = href.match(/#w(\d+)/);
+                if (!match) return;
+                
+                const num = match[1];
+                
+                const container = wLink.closest('div');
+                if (!container) return;
+                
+                let contentElements = [];
+                let currentElement = container;
+                
+                while (currentElement && area.contains(currentElement)) {
+                    const nextLink = currentElement.querySelector(`a[href*="#w"]`);
+                    if (nextLink && nextLink !== wLink) {
+                        const nextMatch = nextLink.getAttribute('href').match(/#w(\d+)/);
+                        if (nextMatch && nextMatch[1] !== num) {
+                            break;
+                        }
+                    }
+                    
+                    contentElements.push(currentElement);
+                    currentElement = currentElement.nextElementSibling;
+                }
+                
+                if (contentElements.length > 0) {
+                    areaMap.ebooknotes.set(num, contentElements);
+                }
+            });
+            
+            // ========== 4. 收集Word脚注内容（完全照抄Word批注，用 #_ftnref） ==========
+            area.querySelectorAll('a[href^="#_ftnref"], a[href^="#ftnref"]').forEach(anchor => {
+                const href = anchor.getAttribute('href');
+                const match = href.match(/#_?ftnref(\d+)/i);
+                if (!match) return;
+                
+                const num = match[1];
+                
+                let container = anchor.parentElement;
+                let contentElements = [];
+                let currentElement = container;
+                
+                while (currentElement && area.contains(currentElement)) {
+                    const otherAnchors = currentElement.querySelectorAll(`a[href^="#_ftnref"]:not([href="#_ftnref${num}"])`);
+                    if (otherAnchors.length > 0) {
+                        break;
+                    }
+                    
+                    contentElements.push(currentElement);
+                    currentElement = currentElement.nextElementSibling;
+                }
+                
+                contentElements = contentElements.filter(el => {
+                    const html = el.outerHTML.trim();
+                    return html !== '<div><a></a></div>' && html !== '<div></div>';
+                });
+                
+                if (contentElements.length > 0) {
+                    areaMap.wordfootnotes.set(num, contentElements);
+                    console.log(`成功收集Word脚注${num}: ${contentElements.length}个元素`);
+                }
+            });
+            
+            // ========== 5. 收集Word尾注内容（完全照抄Word批注，用 #_ednref） ==========
+            area.querySelectorAll('a[href^="#_ednref"], a[href^="#ednref"]').forEach(anchor => {
+                const href = anchor.getAttribute('href');
+                const match = href.match(/#_?ednref(\d+)/i);
+                if (!match) return;
+                
+                const num = match[1];
+                
+                let container = anchor.parentElement;
+                let contentElements = [];
+                let currentElement = container;
+                
+                while (currentElement && area.contains(currentElement)) {
+                    const otherAnchors = currentElement.querySelectorAll(`a[href^="#_ednref"]:not([href="#_ednref${num}"])`);
+                    if (otherAnchors.length > 0) {
+                        break;
+                    }
+                    
+                    contentElements.push(currentElement);
+                    currentElement = currentElement.nextElementSibling;
+                }
+                
+                contentElements = contentElements.filter(el => {
+                    const html = el.outerHTML.trim();
+                    return html !== '<div><a></a></div>' && html !== '<div></div>';
+                });
+                
+                if (contentElements.length > 0) {
+                    areaMap.wordendnotes.set(num, contentElements);
+                    console.log(`成功收集Word尾注${num}: ${contentElements.length}个元素`);
+                }
+            });
+            
+            areaContentMap.set(areaIndex, areaMap);
         });
         
         // 第二步：为每个链接创建对应的tooltip并移动内容
@@ -2661,7 +2718,7 @@ function setupCompleteTooltipSystem() {
             const areaMap = areaContentMap.get(areaIndex);
             if (!areaMap) return;
             
-            // 处理脚注链接
+            // ========== 处理原有脚注链接 ==========
             area.querySelectorAll('a[href="javascript:void(0)"] sup').forEach(sup => {
                 const link = sup.parentElement;
                 if (link.dataset.tooltipCreated) return;
@@ -2674,7 +2731,6 @@ function setupCompleteTooltipSystem() {
                     const contentElements = areaMap.footnotes.get(num);
                     const tooltipId = `footnote-area${areaIndex}-${num}`;
                     
-                    // 创建tooltip
                     const tooltip = document.createElement('div');
                     tooltip.className = 'tooltip';
                     tooltip.id = tooltipId;
@@ -2693,14 +2749,12 @@ function setupCompleteTooltipSystem() {
                     `;
                     document.body.appendChild(tooltip);
                     
-                    // 移动内容到tooltip
                     contentElements.forEach(el => {
                         if (el.parentNode) {
                             tooltip.appendChild(el);
                         }
                     });
                     
-                    // 绑定挖空事件
                     setTimeout(() => {
                         tooltip.querySelectorAll('cloze2, cloze2_w').forEach(clozeElement => {
                             clozeElement.onclick = function(event) { 
@@ -2711,16 +2765,13 @@ function setupCompleteTooltipSystem() {
                         });
                     }, 10);
                     
-                    // 记录映射
                     link.dataset.tooltipId = tooltipId;
                     link.dataset.tooltipCreated = 'true';
-                    
-                    // 从map中移除，避免重复
                     areaMap.footnotes.delete(num);
                 }
             });
             
-            // 处理Word批注链接
+            // ========== 处理Word批注链接（正文引用 #_msocom_） ==========
             area.querySelectorAll('a[href^="#_msocom_"]').forEach(link => {
                 if (link.dataset.tooltipCreated) return;
                 
@@ -2774,7 +2825,7 @@ function setupCompleteTooltipSystem() {
                 }
             });
             
-            // 处理电子书注释链接
+            // ========== 处理电子书注释链接 ==========
             area.querySelectorAll('a[href*="clbr://"]').forEach(link => {
                 if (link.dataset.tooltipCreated) return;
                 
@@ -2825,6 +2876,120 @@ function setupCompleteTooltipSystem() {
                     link.dataset.tooltipId = tooltipId;
                     link.dataset.tooltipCreated = 'true';
                     areaMap.ebooknotes.delete(num);
+                }
+            });
+            
+            // ========== 处理Word脚注链接（正文引用 #_ftn，不带ref） ==========
+            area.querySelectorAll('a[href^="#_ftn"], a[href^="#ftn"]').forEach(link => {
+                if (link.dataset.tooltipCreated) return;
+                
+                // 跳过带 ref 的（那是内容区域的链接）
+                const href = link.getAttribute('href');
+                if (href.includes('ref')) return;
+                
+                const match = href.match(/#_?ftn(\d+)/i);
+                if (!match) return;
+                
+                const num = match[1];
+                
+                if (areaMap.wordfootnotes.has(num)) {
+                    const contentElements = areaMap.wordfootnotes.get(num);
+                    const tooltipId = `wordfootnote-area${areaIndex}-${num}`;
+                    
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    tooltip.id = tooltipId;
+                    tooltip.style.cssText = `
+                        position: absolute;
+                        background: white;
+                        border: 1px solid #ccc;
+                        padding: 12px;
+                        border-radius: 8px;
+                        max-width: 400px;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                        word-wrap: break-word;
+                        overflow-wrap: break-word;
+                        display: none;
+                        z-index: 1000000;
+                    `;
+                    document.body.appendChild(tooltip);
+                    
+                    contentElements.forEach(el => {
+                        if (el.parentNode) {
+                            tooltip.appendChild(el);
+                        }
+                    });
+                    
+                    setTimeout(() => {
+                        tooltip.querySelectorAll('cloze2, cloze2_w').forEach(clozeElement => {
+                            clozeElement.onclick = function(event) { 
+                                toggleCloze(this);
+                                event.stopPropagation();
+                            };
+                            clozeElement.style.cursor = 'pointer';
+                        });
+                    }, 10);
+                    
+                    link.dataset.tooltipId = tooltipId;
+                    link.dataset.tooltipCreated = 'true';
+                    areaMap.wordfootnotes.delete(num);
+                }
+            });
+            
+            // ========== 处理Word尾注链接（正文引用 #_edn，不带ref） ==========
+            area.querySelectorAll('a[href^="#_edn"], a[href^="#edn"]').forEach(link => {
+                if (link.dataset.tooltipCreated) return;
+                
+                // 跳过带 ref 的（那是内容区域的链接）
+                const href = link.getAttribute('href');
+                if (href.includes('ref')) return;
+                
+                const match = href.match(/#_?edn(\d+)/i);
+                if (!match) return;
+                
+                const num = match[1];
+                
+                if (areaMap.wordendnotes.has(num)) {
+                    const contentElements = areaMap.wordendnotes.get(num);
+                    const tooltipId = `wordendnote-area${areaIndex}-${num}`;
+                    
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    tooltip.id = tooltipId;
+                    tooltip.style.cssText = `
+                        position: absolute;
+                        background: white;
+                        border: 1px solid #ccc;
+                        padding: 12px;
+                        border-radius: 8px;
+                        max-width: 400px;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                        word-wrap: break-word;
+                        overflow-wrap: break-word;
+                        display: none;
+                        z-index: 1000000;
+                    `;
+                    document.body.appendChild(tooltip);
+                    
+                    contentElements.forEach(el => {
+                        if (el.parentNode) {
+                            tooltip.appendChild(el);
+                        }
+                    });
+                    
+                    setTimeout(() => {
+                        tooltip.querySelectorAll('cloze2, cloze2_w').forEach(clozeElement => {
+                            clozeElement.onclick = function(event) { 
+                                toggleCloze(this);
+                                event.stopPropagation();
+                            };
+                            clozeElement.style.cursor = 'pointer';
+                        });
+                    }, 10);
+                    
+                    link.dataset.tooltipId = tooltipId;
+                    link.dataset.tooltipCreated = 'true';
+                    areaMap.wordendnotes.delete(num);
                 }
             });
         });
@@ -2951,14 +3116,14 @@ function setupCompleteTooltipSystem() {
     
     // ========== 初始化链接 ==========
     
-    // 脚注链接
+    // 原有脚注链接
     document.querySelectorAll('a[href="javascript:void(0)"] sup').forEach(sup => {
         const link = sup.parentElement;
         link.style.cssText = 'cursor: pointer; color: #1890ff; text-decoration: underline;';
         link.addEventListener('click', handleClick);
     });
 
-    // Word批注链接
+    // Word批注链接（正文引用）
     document.querySelectorAll('a[href^="#_msocom_"]').forEach(link => {
         link.style.cssText = 'cursor: pointer; color: #1890ff; text-decoration: underline;';
         link.addEventListener('click', handleClick);
@@ -2968,6 +3133,24 @@ function setupCompleteTooltipSystem() {
     document.querySelectorAll('a[href*="clbr://"]').forEach(link => {
         link.style.cssText = 'cursor: pointer; color: #1890ff; text-decoration: underline;';
         link.addEventListener('click', handleClick);
+    });
+    
+    // Word脚注链接（正文引用，不带ref）
+    document.querySelectorAll('a[href^="#_ftn"], a[href^="#ftn"]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && !href.includes('ref')) {
+            link.style.cssText = 'cursor: pointer; color: #1890ff; text-decoration: underline;';
+            link.addEventListener('click', handleClick);
+        }
+    });
+    
+    // Word尾注链接（正文引用，不带ref）
+    document.querySelectorAll('a[href^="#_edn"], a[href^="#edn"]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && !href.includes('ref')) {
+            link.style.cssText = 'cursor: pointer; color: #1890ff; text-decoration: underline;';
+            link.addEventListener('click', handleClick);
+        }
     });
     
     // 🔥 页面加载时立即移动所有内容
@@ -3043,7 +3226,6 @@ function enhancePopupTooltipSupport() {
         }
     });
 }
-
 
 // 在页面加载后执行
 setTimeout(() => {
