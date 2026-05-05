@@ -50,7 +50,6 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
             <strong>标记跳转</strong>: 点击笔记列表中的笔记原文部分，会自动跳转至相应标记位置，笔记标记还会另外自动打开相应的笔记编辑器。嵌入式标记无法直接跳转，但可通过点击来源小徽章跳转至来源笔记标记并打开相应的笔记编辑器。<br>
            <strong>数据源</strong>: 本系统有两种数据来源可供选择，默认本地存储，可以切换为字段来源【用于多设备同步】。只有本地模式才可以进行编辑【新增、删除】操作，字段数据<span class="action-highlight">NoteMarkData</span>仅为取数来源【只读，可以复制】，从字段切换为本地时会提示是否需要合并到本地，合并后的结果为：字段数据+本地特殊。<br>
             <strong>复制提示</strong>: 任何编辑【新增、删除】操作，实际更新的都是本地存储，无法自动更新字段数据。本地存储实质仅为设备缓存，有丢失风险，请在本地模式编辑完成后点击<span class="action-highlight">📤Cur</span>按钮复制当前卡片所有数据【JSON格式】，并手动黏贴到Anki字段<span class="action-highlight">NoteMarkData</span>。本系统提供两种复制格式，一种是JSON格式【<span class="action-highlight">📤Cur</span>和<span class="action-highlight">📤All</span>】，用于作为字段数据源。另一种为html格式【<span class="action-highlight">📋</span>】，供特殊需求【比如批量导出打印】。<br>
-            <strong>最后</strong>: 熟悉系统之后可以直接在模板中删除这部分提示内容。<br>
         </div>
     </div>
 </div>
