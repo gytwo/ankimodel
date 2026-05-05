@@ -57,7 +57,6 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
 #### 图片遮盖系统
 
 -  **说明：** 实现直接在复习界面选中图片后添加图片遮罩、涂鸦、备注等标记，需借助新增字段ImageClozeData实现跨设备同步（右上角🧰图标为图片遮盖系统菜单入口，左上角🔄图标为图片遮盖系统重启按钮）
-    <div class="data-management-content">
         <div class="guide-card-container">
             <div class="guide-card-title blue">
                 <span>🚀</span>
@@ -128,7 +127,6 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
                 </div>
             </div>
         </div>
-    </div>
 
 #### 参与贡献
 
