@@ -41,7 +41,7 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
 
 #### 笔记标记系统
 
-- 说明：实现直接在复习界面选中文字后添加笔记标记，需借助新增字段NoteMarkData实现跨设备同步
+- 说明：实现直接在复习界面选中文字后添加笔记标记，需借助新增字段NoteMarkData实现跨设备同步（右上角🔖图标为笔记标记系统菜单入口）
     <div class="notemarks-notice">
         <div class="notice-content">
             <strong>使用方法</strong>: 页面选中文字后弹出标记工具栏，选中相应的工具进行标记，所有标记均可双击删除。所有标记并不会改变原Anki相应字段内容。<br>
@@ -53,15 +53,83 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
         </div>
     </div>
 </div>
-2.  xxxx
-3.  xxxx
 
 #### 图片遮盖系统
 
-- 说明：实现直接在复习界面选中图片后添加图片遮罩、涂鸦、备注等标记，需借助新增字段ImageClozeData实现跨设备同步
-1.  xxxx
-2.  xxxx
-3.  xxxx
+- 说明：实现直接在复习界面选中图片后添加图片遮罩、涂鸦、备注等标记，需借助新增字段ImageClozeData实现跨设备同步（右上角🧰图标为图片遮盖系统菜单入口，左上角🔄图标为图片遮盖系统重启按钮）
+    <div class="data-management-content">
+        <div class="guide-card-container">
+            <div class="guide-card-title blue">
+                <span>🚀</span>
+                <span>核心操作步骤</span>
+            </div>
+            <ul class="guide-step-list">
+                <li class="guide-step-item">
+                    <span class="guide-step-icon">1</span>
+                    <span><strong>点击图片：</strong>激活快捷工具栏【若点击图片无反应请点击左上角重启按钮重启图片系统】</span>
+                </li>
+                <li class="guide-step-item">
+                    <span class="guide-step-icon">2</span>
+                    <span><strong>选择工具：</strong>选择画笔/橡皮/遮罩进行编辑【所有按钮鼠标悬停时都会显示提示信息】</span>
+                </li>
+                <li class="guide-step-item">
+                    <span class="guide-step-icon">3</span>
+                    <span><strong>数据同步：</strong>编辑后点击"📤Cur"按钮复制当前卡片图片数据后黏贴到ImageClozeData字段实现跨设备同步</span>
+                </li>
+                <li class="guide-step-item">
+                    <span class="guide-step-icon">4</span>
+                    <span><strong>更多工具：</strong>请打开主菜单【点击右上角工具箱图标或者工具栏上的工具箱图标】，编辑工具可以选择画笔颜色、粗细、橡皮大小、遮罩颜色。点击数据管理可以查看详细数据列表【点击具体条目可自动激活并直接跳转至该图片，点击条目后面的编辑/添加备注小图标也能实现自动激活及跳转，并自动打开备注框以便编辑备注】、数据统计情况【统计总体情况及失败列表：若点击某张图片无反应，重启系统也没有作用，请查看该失败列表（一般正常图片不会失败)】</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="guide-card-container">
+            <div class="guide-card-title orange">
+                <span>⚠️</span>
+                <span>重要提醒</span>
+            </div>
+            <ul class="guide-step-list">
+                <li class="guide-step-item">
+                    <span class="guide-step-icon warning">!</span>
+                    <span><strong>数据源切换：</strong>本地模式可编辑，字段模式只读。字段切换到本地时可选择是否合并数据。数据管理面板上的复制按钮复制的是当前数据源的数据，删除、清除等操作按钮仅针对本地数据，对字段原始数据没有任何影响。</span>
+                </li>
+                <li class="guide-step-item">
+                    <span class="guide-step-icon warning">!</span>
+                    <span><strong>数据备份：</strong>编辑操作会自动保存到本地存储，无需手动保存。但本地存储实质为缓存，有丢失风险，请在本地模式编辑完成后点击"📤Cur"【复制当前卡片图片数据】及"📤All"【复制所有卡片图片数据】按钮并黏贴到Anki字段【ImageClozeData】进行备份，作为字段数据来源【同时也实现多设备间的同步】。</span>
+                </li>
+                <li class="guide-step-item">
+                    <span class="guide-step-icon warning">!</span>
+                    <span><strong>系统兼容性：</strong>图片系统也能处理笔记标记系统中笔记标记内的图片且会显示在图片系统的数据列表里面，点击该条目会自动打开该图片所在笔记标记的笔记预览窗口并自动激活该图片。</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="guide-card-container">
+            <div class="guide-card-title blue">
+                <span>⌨️</span>
+                <span>系统快捷键</span>
+            </div>
+            <div class="shortcut-grid">
+                <div class="shortcut-item">
+                    <div class="shortcut-label">重启图片系统</div>
+                    <div class="shortcut-keys">Alt + R</div>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-label">撤销操作</div>
+                    <div class="shortcut-keys">Ctrl + Z</div>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-label">删除选中遮罩</div>
+                    <div class="shortcut-keys">Delete / Backspace</div>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-label">关闭/退出</div>
+                    <div class="shortcut-keys">Escape (Esc)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 #### 参与贡献
 
