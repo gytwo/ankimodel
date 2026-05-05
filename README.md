@@ -41,7 +41,7 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
 
 #### 笔记标记系统
 
--  **说明：** 实现直接在复习界面选中文字后添加笔记标记，需借助新增字段NoteMarkData实现跨设备同步（右上角🔖图标为笔记标记系统菜单入口）
+-  **说明：** 实现直接在复习界面选中文字后添加笔记标记，需借助新增字段NoteMarkData实现跨设备同步（右上角`🔖`图标为笔记标记系统菜单入口）
     <div class="notemarks-notice">
         <div class="notice-content">
             <strong>使用方法</strong>: 页面选中文字后弹出标记工具栏，选中相应的工具进行标记，所有标记均可双击删除。所有标记并不会改变原Anki相应字段内容。<br>
@@ -56,7 +56,7 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
 
 #### 图片遮盖系统
 
--  **说明：** 实现直接在复习界面选中图片后添加图片遮罩、涂鸦、备注等标记，需借助新增字段ImageClozeData实现跨设备同步（右上角🧰图标为图片遮盖系统菜单入口，左上角🔄图标为图片遮盖系统重启按钮）
+-  **说明：** 实现直接在复习界面选中图片后添加图片遮罩、涂鸦、备注等标记，需借助新增字段ImageClozeData实现跨设备同步（右上角`🧰`图标为图片遮盖系统菜单入口，左上角`🔄`图标为图片遮盖系统重启按钮）
         <div class="guide-card-container">
             <div class="guide-card-title blue">
                 <span>🚀</span>
@@ -73,7 +73,7 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
                 </li>
                 <li class="guide-step-item">
                     <span class="guide-step-icon">3</span>
-                    <span><strong>数据同步：</strong>编辑后点击"📤Cur"按钮复制当前卡片图片数据后黏贴到ImageClozeData字段实现跨设备同步</span>
+                    <span><strong>数据同步：</strong>编辑后点击`📤Cur`按钮复制当前卡片图片数据后黏贴到ImageClozeData字段实现跨设备同步</span>
                 </li>
                 <li class="guide-step-item">
                     <span class="guide-step-icon">4</span>
