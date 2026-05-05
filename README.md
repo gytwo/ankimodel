@@ -103,30 +103,7 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
             </ul>
         </div>
 
-        <div class="guide-card-container">
-            <div class="guide-card-title blue">
-                <span>⌨️</span>
-                <span>系统快捷键</span>
-            </div>
-            <div class="shortcut-grid">
-                <div class="shortcut-item">
-                    <div class="shortcut-label">重启图片系统</div>
-                    <div class="shortcut-keys">Alt + R</div>
-                </div>
-                <div class="shortcut-item">
-                    <div class="shortcut-label">撤销操作</div>
-                    <div class="shortcut-keys">Ctrl + Z</div>
-                </div>
-                <div class="shortcut-item">
-                    <div class="shortcut-label">删除选中遮罩</div>
-                    <div class="shortcut-keys">Delete / Backspace</div>
-                </div>
-                <div class="shortcut-item">
-                    <div class="shortcut-label">关闭/退出</div>
-                    <div class="shortcut-keys">Escape (Esc)</div>
-                </div>
-            </div>
-        </div>
+
 
 #### 参与贡献
 
