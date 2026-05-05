@@ -93,7 +93,7 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
                 </li>
                 <li class="guide-step-item">
                     <span class="guide-step-icon warning">!</span>
-                    <span><strong>数据备份：</strong>编辑操作会自动保存到本地存储，无需手动保存。但本地存储实质为缓存，有丢失风险，请在本地模式编辑完成后点击"📤Cur"【复制当前卡片图片数据】及"📤All"【复制所有卡片图片数据】按钮并黏贴到Anki字段【ImageClozeData】进行备份，作为字段数据来源【同时也实现多设备间的同步】。</span>
+                    <span><strong>数据备份：</strong>编辑操作会自动保存到本地存储，无需手动保存。但本地存储实质为缓存，有丢失风险，请在本地模式编辑完成后点击`📤Cur`【复制当前卡片图片数据】及`📤All`【复制所有卡片图片数据】按钮并黏贴到Anki字段`ImageClozeData`进行备份，作为字段数据来源【同时也实现多设备间的同步】。</span>
                 </li>
                 <li class="guide-step-item">
                     <span class="guide-step-icon warning">!</span>
