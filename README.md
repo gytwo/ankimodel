@@ -52,7 +52,6 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
             <strong>复制提示</strong>: 任何编辑【新增、删除】操作，实际更新的都是本地存储，无法自动更新字段数据。本地存储实质仅为设备缓存，有丢失风险，请在本地模式编辑完成后点击`📤Cur`按钮复制当前卡片所有数据【JSON格式】，并手动黏贴到Anki字段`NoteMarkData`。本系统提供两种复制格式，一种是JSON格式【`📤Cur`和`📤All`】，用于作为字段数据源。另一种为html格式【`📋`】，供特殊需求【比如批量导出打印】。<br>
         </div>
     </div>
-</div>
 
 #### 图片遮盖系统
 
@@ -73,7 +72,7 @@ anki模板-内含基础功能+笔记标记系统+图片遮盖系统 【挖空转
                 </li>
                 <li class="guide-step-item">
                     <span class="guide-step-icon">3</span>
-                    <span><strong>数据同步：</strong>编辑后点击`📤Cur`按钮复制当前卡片图片数据后黏贴到ImageClozeData字段实现跨设备同步</span>
+                    <span><strong>数据同步：</strong>编辑后点击`📤Cur`按钮复制当前卡片图片数据后黏贴到`ImageClozeData`字段实现跨设备同步</span>
                 </li>
                 <li class="guide-step-item">
                     <span class="guide-step-icon">4</span>
