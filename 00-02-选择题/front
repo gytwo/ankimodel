@@ -15,6 +15,7 @@
 
      <!-- 弹窗按钮 -->
     {{#拓展}}<button class="popup-badge" id="expand-badge"><span class="popup-badge-icon"> 🔗</span><span class="popup-badge-text">拓展</span></button>{{/拓展}}
+    {{#资料}}<button class="popup-badge" id="reference-badge"><span class="popup-badge-icon">🗂️</span><span class="popup-badge-text">资料</span></button>{{/资料}}
     {{#笔记}}<button class="popup-badge" id="note-badge"><span class="popup-badge-icon">✏️</span><span class="popup-badge-text">笔记</span></button>{{/笔记}}
 
    <!-- 其他按钮 -->
@@ -61,6 +62,7 @@
 
     <!-- ========== 弹窗区域 ========== -->
     {{#拓展}}<div class="popup-container" id="expand-popup"><div class="popup-header"><div class="popup-title"><span class="popup-title-icon"> 🔗</span><span class="popup-title-text">拓展链接</span></div><button class="popup-close" id="expand-close">×</button></div><div class="popup-content area linkRender">{{拓展}}</div></div> {{/拓展}}
+    {{#资料}}<div class="popup-container" id="reference-popup"><div class="popup-header"><div class="popup-title"><span class="popup-title-icon">🗂️</span><span class="popup-title-text">参考资料</span></div><button class="popup-close" id="reference-close">×</button></div><div class="popup-content area linkRender">{{资料}}</div></div> {{/资料}}
     {{#笔记}}<div class="popup-container" id="note-popup"><div class="popup-header"><div class="popup-title"><span class="popup-title-icon">✏️</span><span class="popup-title-text">手写笔记</span></div><button class="popup-close" id="note-close">×</button></div><div class="popup-content area linkRender">{{笔记}}</div></div> {{/笔记}}
 
 
@@ -330,35 +332,32 @@ function getSplitItems(text) {
         if (result.length > 1) return result;
     }
     
-    // 5. 字母开头格式
-    if (text.match(/[A-Z][\.、．:：]/)) {
-        let result = text.split(/(?=[A-Z][\.、．:：]\s*)/).map(t => t.trim()).filter(t => t);
-        if (result.length > 1) return result;
-    }
-    
-    // ======= 如果以上都失败，尝试处理div格式 =======
+    // 5. div格式（原先是第6步，现在提前到第5步）
     if (text.includes('</div>')) {
-        console.log("尝试处理div格式");
-        
-        // 移除所有HTML标签，得到纯文本
         let plainText = text.replace(/<[^>]+>/g, ' ').trim();
         
-        // 尝试按字母开头方式匹配
         if (plainText.match(/[A-Z][\.、．:：]/)) {
             let result = plainText.split(/(?=[A-Z][\.、．:：]\s*)/)
                                  .map(t => t.trim())
-                                 .filter(t => t);
+                                 .filter(t => t);  // 保持原样，不加 && t.length > 0
             if (result.length > 1) return result;
         }
         
-        // 如果字母匹配失败，尝试按换行分割
         if (plainText.includes('\n')) {
             let result = plainText.split('\n').map(t => t.trim()).filter(t => t);
             if (result.length > 1) return result;
         }
     }
     
-    // ======= 最后的手段：作为单个选项 =======
+    // 6. 字母开头格式（原先是第5步，现在移到第6步）
+    if (text.match(/[A-Z][\.、．:：]/)) {
+        let result = text.split(/(?=[A-Z][\.、．:：]\s*)/)
+                         .map(t => t.trim())
+                         .filter(t => t);  // 保持原样
+        if (result.length > 1) return result;
+    }
+    
+    // 7. 最后的手段
     return text.trim() ? [text.trim()] : [];
 }
     
