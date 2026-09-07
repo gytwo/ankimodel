@@ -219,7 +219,7 @@ var questionStartTime = Date.now(); // 题目开始时间
 var questionTimer = null;
 
 // 考试日期（请根据实际情况修改）
-var examDate = new Date("2026-08-29"); // 示例：2024年12月31日
+var examDate = new Date("2026-11-20"); // 示例：2024年12月31日
 
 // ====== 初始化计时器 ======
 function initTimers() {
@@ -12683,7 +12683,7 @@ document.addEventListener('keydown', function(e) {
 <!-- ========== 初始化执行 ========== -->
 <script>
 // 1. 大纲系统
-//convertTitlesToDetails();
+convertTitlesToDetails();
 setupNodeEvents();
 
 // 2. 挖空系统
@@ -12753,6 +12753,3 @@ if (typeof setupCompleteTooltipSystem === 'function') enhancePopupTooltipSupport
 // 10. 数据统计
 if (typeof initStatistics === 'function') initStatistics();
 </script>
-
-
-
