@@ -29,57 +29,35 @@
 </div>
 
     <!-- ========== 页眉区域 ========== -->
-     <button class="header-container searchbtn" onclick="toggleSearchBox()">
+    <button class="header-container searchbtn" onclick="toggleSearchBox()">
     <!-- 左边：用时 -->
-    <div id="time-used-display">用时：<span id="time-used-seconds">0</span>秒</div>
+    <div id="time-used-display">用时：<span id="timer-seconds">0</span>秒</div>
     
     <!-- 中间：来源考点 -->
     <div class="linkRender" id="source-display">{{来源}}➵{{考点}}</div>
     
     <!-- 右边：倒计时 -->
     <div id="exam-countdown">倒计时：<span id="exam-days">--</span>天</div>
-    </button>
+</button>
 
     <!-- ==========主内容 ========== -->
     <!-- ========== 选择题区域 ========== -->
+   
+    <!-- 问题及选项 -->
     <div class="question-content">
-        <!-- 题目区域，包含题型徽章 -->
         <div class="question-text" id="question-container">
-            <!-- 题型徽章将在这里动态插入 -->
             <span id="question-type-badge"></span>
             <span id="question-content">{{Question}}</span>
         </div>
 
         <div id="orignal-options" style="display:none;">{{Options}}</div>
-        <div class="options-container" id="back-options">
-            <!-- 这里由JS动态生成 -->
+        <div class="options-container" id="front-options">
+            <!-- 这里由JS动态生成可点击的选项 -->
         </div>
         
-        <!-- 用户选择结果展示 -->
-        <div class="result-panel" id="result-panel"></div>
-    </div>
-    
-    <div class="answer-section">
-        {{#Remark}}
-        <div class="info-box remark-box">
-            <div class="info-title">📝 解析</div>
-            <div class="info-content linkRender">{{Remark}}</div>
+        <div class="user-selection" id="user-selection" style="display:none;">
+            已选择：<span id="selected-option"></span>
         </div>
-        {{/Remark}}
-        
-        {{#错因}}
-        <div class="info-box mistake-box">
-            <div class="info-title">❌ 错因</div>
-            <div class="info-content linkRender">{{错因}}</div>
-        </div>
-        {{/错因}}
-        
-        {{#统计}}
-        <div class="info-box stats-box">
-            <div class="info-title">📊 统计</div>
-            <div class="info-content linkRender">{{统计}}</div>
-        </div>
-        {{/统计}}
     </div>
 
     <!-- ========== 弹窗区域 ========== -->
@@ -235,121 +213,64 @@
 
 <!-- ========== 一、选择题设置========== -->
 <script>
-    // ====== 计时器相关函数======
-    function displayTimeUsed() {
-        try {
-            var timeUsed = sessionStorage.getItem('question_time') || "0";
-            var timeElement = document.getElementById('time-used-seconds');
-            if (timeElement) {
-                timeElement.textContent = timeUsed;
-            }
-        } catch(e) {}
-    }
-    
-    function updateExamCountdown() {
-        var examDate = new Date("2026-08-29"); // 修改考试日期
-        var today = new Date();
-        var timeDiff = examDate.getTime() - today.getTime();
-        var daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        
-        var countdownElement = document.getElementById('exam-days');
-        if (countdownElement) {
-            countdownElement.textContent = daysRemaining;
-        }
-    }
-    
-     // ====== 选择题统计管理器 ======
-var ChoiceStats = {
-    KEY: 'anki_choice_stats',
-    
-    save: function(isCorrect, seconds) {
-        try {
-            var data = JSON.parse(localStorage.getItem(this.KEY) || '{"total":0,"correct":0,"time":0}');
-            data.total++;
-            if (isCorrect) data.correct++;
-            data.time += parseInt(seconds || 0);
-            localStorage.setItem(this.KEY, JSON.stringify(data));
-        } catch(e) {}
-    },
-    
-    getStats: function() {
-        try {
-            var data = JSON.parse(localStorage.getItem(this.KEY) || '{"total":0,"correct":0,"time":0}');
-            if (data.total === 0) return null;
-            
-            return {
-                总题数: data.total,
-                正确数: data.correct,
-                错误数: data.total - data.correct,
-                正确率: Math.round((data.correct / data.total) * 100) + '%',
-                总用时: data.time + '秒',
-                平均用时: Math.round(data.time / data.total) + '秒'
-            };
-        } catch(e) {
-            return null;
-        }
-    }
-};
+// ====== 计时器变量 ======
+var userChoices = [];
+var questionStartTime = Date.now(); // 题目开始时间
+var questionTimer = null;
 
-    // ====== 显示选择题统计 ======
-function showChoiceStats() {
-    try {
-        var timeUsed = sessionStorage.getItem('question_time') || "0";
-        var resultPanel = document.getElementById('result-panel');
-        if (resultPanel && timeUsed && resultPanel.className) {
-            var isCorrect = resultPanel.classList.contains('result-correct');
-            ChoiceStats.save(isCorrect, timeUsed);
-        }
-    } catch(e) {}
+// 考试日期（请根据实际情况修改）
+var examDate = new Date("2026-11-20"); // 示例：2024年12月31日
+
+// ====== 初始化计时器 ======
+function initTimers() {
+    // 1. 初始化题目计时器
+    updateQuestionTimer();
+    questionTimer = setInterval(updateQuestionTimer, 1000);
     
-    var stats = ChoiceStats.getStats();
-    if (!stats) return;
-    
-    var container = document.getElementById('choice-stats-line');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'choice-stats-line';
-        container.style.cssText = `
-            position: fixed;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 12px;
-            font-family: monospace;
-            padding: 4px 12px;;
-            z-index: 999;
-            white-space: nowrap;
-            color: #666;
-        `;
-        
-        document.body.appendChild(container);
-    }
-    
-    container.innerHTML = `
-        <span>
-            共${stats.总题数}题 🎉${stats.正确数} 🚨${stats.错误数} 🎯${stats.正确率} ⏱️总${stats.总用时} ⏱️均${stats.平均用时}
-        </span>
-        <button onclick="resetChoiceStats()" style="
-            margin-left: 0px;
-            background: transparent;
-            color: #ff4d4f;
-            border: 1px solid #ff4d4f;
-            border-radius: 2px;
-            font-size: 10px;
-            padding: 2px 6px;
-            cursor: pointer;
-        ">重置</button>
-    `;
+    // 2. 初始化考试倒计时
+    updateExamCountdown();
+    setInterval(updateExamCountdown, 60000); // 每分钟更新一次
 }
 
-// ====== 重置统计 ======
-function resetChoiceStats() {
-    if (confirm('确定要重置选择题统计吗？')) {
-        localStorage.removeItem('anki_choice_stats');
-        var container = document.getElementById('choice-stats-line');
-        if (container) {
-            container.innerHTML = '<span style="color:#666;">统计已重置</span>';
-            setTimeout(() => container.remove(), 1000);
+// 更新题目花费时间
+function updateQuestionTimer() {
+    var currentTime = Date.now();
+    var elapsedSeconds = Math.floor((currentTime - questionStartTime) / 1000);
+    var timerElement = document.getElementById('timer-seconds');
+    if (timerElement) {
+        timerElement.textContent = elapsedSeconds;
+        
+        // 颜色渐变：时间越长颜色越深
+        if (elapsedSeconds > 60) {
+            timerElement.parentElement.style.background = 'rgba(255, 107, 107, 0.8)';
+        } else if (elapsedSeconds > 30) {
+            timerElement.parentElement.style.background = 'rgba(255, 193, 7, 0.8)';
+        }
+    }
+}
+
+// 更新考试倒计时
+function updateExamCountdown() {
+    var today = new Date();
+    var timeDiff = examDate.getTime() - today.getTime();
+    var daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+    var countdownElement = document.getElementById('exam-days');
+    if (countdownElement) {
+        if (daysRemaining < 0) {
+            countdownElement.textContent = "已过期";
+            document.getElementById('exam-countdown').style.background = 'linear-gradient(135deg, #666, #999)';
+        } else if (daysRemaining === 0) {
+            countdownElement.textContent = "今天";
+            document.getElementById('exam-countdown').style.background = 'linear-gradient(135deg, #ff3838, #ff0000)';
+        } else if (daysRemaining <= 7) {
+            countdownElement.textContent = daysRemaining;
+            document.getElementById('exam-countdown').style.background = 'linear-gradient(135deg, #ff3838, #ff6b6b)';
+        } else if (daysRemaining <= 30) {
+            countdownElement.textContent = daysRemaining;
+            document.getElementById('exam-countdown').style.background = 'linear-gradient(135deg, #ff9f43, #ffaf60)';
+        } else {
+            countdownElement.textContent = daysRemaining;
         }
     }
 }
@@ -440,9 +361,8 @@ function getSplitItems(text) {
     return text.trim() ? [text.trim()] : [];
 }
     
-    
-    // ====== 获取正确答案函数（支持加密） ======
-    function getCorrectAnswer() {
+// ====== 获取正确答案函数（支持加密） ======
+function getCorrectAnswer() {
     // 1. 先尝试从DOM获取解密后的答案
     var answerElement = document.getElementById('answer');
     if (answerElement) {
@@ -454,13 +374,14 @@ function getSplitItems(text) {
     
     // 2. 如果DOM中没有，从模板变量获取（未加密情况）
     return "{{Answer}}".trim().toUpperCase();
-} 
-    // ====== 题型判断函数（这里添加缺失的函数）=====
-    function isTrueFalseQuestion(optionsCount) {
+}
+
+// ====== 题型判断函数 ======
+function isTrueFalseQuestion(optionsCount) {
     return optionsCount === 2;
 }
-    // ====== 修改题型判断函数 ======
-    function isMultipleChoice(optionsCount) {
+
+function isMultipleChoice(optionsCount) {
     if (optionsCount === 2) return false;
     
     var answer = getCorrectAnswer().toUpperCase();
@@ -475,272 +396,257 @@ function getSplitItems(text) {
     var letterCount = (answer.match(/[A-Z]/g) || []).length;
     return letterCount >= 2;
 }
-    
-    // ====== 创建题型徽章函数（完全不变）======
-    function createQuestionTypeBadge(optionsCount) {
-        var isTF = isTrueFalseQuestion(optionsCount);
-        var isMultiple = isMultipleChoice(optionsCount);
-        
-        var badgeText, badgeColor, badgeBgColor;
-        
-        if (isTF) {
-            badgeText = "是非题";
-            badgeColor = "#722ed1";
-            badgeBgColor = "#f9f0ff";
-        } else if (isMultiple) {
-            badgeText = "多选题";
-            badgeColor = "#ff6b00";
-            badgeBgColor = "#fff7e6";
-        } else {
-            badgeText = "单选题";
-            badgeColor = "#1890ff";
-            badgeBgColor = "#e6f7ff";
-        }
-        
-        var badge = document.createElement('span');
-        badge.id = 'type-badge';
-        badge.style.cssText = `
-            display: inline-block;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-right: 8px;
-            vertical-align: middle;
-            color: ${badgeColor};
-            background: ${badgeBgColor};
-            border: 1px solid ${badgeColor};
-        `;
-        badge.textContent = badgeText;
-        
-        return badge;
-    }
-    
-    // ====== 计算多选题得分函数（完全不变）======
-    function calculateMultiChoiceScore(userLetters, correctLetters) {
-        var correctSelected = userLetters.filter(function(letter) {
-            return correctLetters.includes(letter);
-        }).length;
-        
-        var wrongSelected = userLetters.filter(function(letter) {
-            return !correctLetters.includes(letter);
-        }).length;
-        
-        var missed = correctLetters.filter(function(letter) {
-            return !userLetters.includes(letter);
-        }).length;
-        
-        return {
-            correctSelected: correctSelected,
-            wrongSelected: wrongSelected,
-            missed: missed,
-            totalCorrect: correctLetters.length,
-            totalSelected: userLetters.length
-        };
-    }
-    
-    // ====== 显示选项并对比结果函数（添加计时器调用）======
-    function displayOptionsWithResult() {
-        var container = document.getElementById('back-options');
-        var resultPanel = document.getElementById('result-panel');
-        
-        if (!container) return;
-        
-        var parsed = parseOptionsText();
-        var options = parsed.options;
-        var optionsCount = parsed.count;
-        
-        var correctAnswer = getCorrectAnswer();
-        var correctLetters = (correctAnswer.match(/[A-Z]/g) || []);
-        
-        var isTF = isTrueFalseQuestion(optionsCount);
-        var isMultiple = isMultipleChoice(optionsCount);
-        
-        // 创建并插入题型徽章
-        var badgeContainer = document.getElementById('question-type-badge');
-        if (badgeContainer) {
-            var badge = createQuestionTypeBadge(optionsCount);
-            badgeContainer.appendChild(badge);
-        }
-        
-        // 获取用户选择
-        var userChoice = '';
-        try {
-            userChoice = sessionStorage.getItem('anki_choice') || '';
-            sessionStorage.removeItem('anki_choice');
-        } catch(e) {
-            console.log('无法获取用户选择');
-        }
-        
-        var userLetters = userChoice.split('').filter(function(c) {
-            return /[A-Z]/.test(c);
-        });
-        
-        // 清空容器
-        container.innerHTML = '';
-        
-        // 创建每个选项
-        options.forEach(function(option) {
-            var isCorrect = correctLetters.includes(option.letter);
-            var isUserChoice = userLetters.includes(option.letter);
-            var isWrongChoice = isUserChoice && !isCorrect;
-            var isMissedChoice = !isUserChoice && isCorrect; // 漏选的
-            
-            var optionDiv = document.createElement('div');
-            optionDiv.className = 'option-item result-option';
-            
-            // 根据结果设置样式类
-            if (isCorrect && isUserChoice) {
-            optionDiv.classList.add('correct-selected');
-        } else if (isCorrect) {
-            optionDiv.classList.add('correct-only');
-            // 如果是漏选项，额外添加missed-option类
-            if (isMissedChoice) {
-                optionDiv.classList.add('missed-option');
-            }
-        } else if (isWrongChoice) {
-            optionDiv.classList.add('wrong-selected');
-        }
 
-            
-           // 添加标记 - 漏选项既有正确标记又有漏选标记
-           var badges = '';
-           if (isCorrect) {
-            badges += '<span class="correct-badge">✓</span>';
-        }
-           if (isWrongChoice) {
-            badges += '<span class="wrong-badge">✗</span>';
-        }
-           if (isMissedChoice) {
-           // 漏选标记（在正确标记基础上添加）
-           badges += '<span class="missed-badge" style="color:#fa8c16; margin-left:5px;">[漏]</span>';
-        }
-
-            // 为选错的选项添加删除线
-            var textDecoration = isWrongChoice ? 'text-decoration: line-through; color: #ff4d4f; opacity: 0.7;' : '';
-            var textColor = isMissedChoice ? 'color: #fa8c16;' : '';
-
-            optionDiv.innerHTML = `
-            <span class="option-text" style="${textDecoration}${textColor}">${option.text}</span>
-            ${badges}
-        `;
-            
-            container.appendChild(optionDiv);
-        });
-        
-        // 显示结果面板
-        if (resultPanel) {
-            if (userChoice) {
-                if (isMultiple) {
-                    // 多选题结果
-                    var score = calculateMultiChoiceScore(userLetters, correctLetters);
-                    var allCorrect = (score.correctSelected === score.totalCorrect && score.wrongSelected === 0);
-                    var partiallyCorrect = (score.correctSelected > 0 && !allCorrect);
-                    
-                     if (allCorrect) {
-                        resultPanel.className = 'result-panel result-correct';
-                        resultPanel.innerHTML = `
-                            <div class="result-content">
-                                <div class="result-icon">✓</div>
-                                <div class="result-text">
-                                    <div class="result-title">🎉 全部正确！</div>
-                                    <div class="result-details">
-                                        <span class="detail-item">你的选择：<strong>${userChoice}</strong></span>
-                                        <span class="detail-separator">|</span>
-                                        <span class="detail-item">正确答案：<strong>${correctAnswer}</strong></span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    } else if (partiallyCorrect) {
-                        resultPanel.className = 'result-panel result-partial';
-                        resultPanel.innerHTML = `
-                            <div class="result-content">
-                                <div class="result-icon"><span class="half-correct-icon">✓</span></div>
-                                <div class="result-text">
-                                    <div class="result-title">✨ 部分正确</div>
-                                    <div class="result-details">
-                                        <span class="detail-item">你的选择：<strong>${userChoice}</strong></span>
-                                        <span class="detail-separator">|</span>
-                                        <span class="detail-item">正确答案：<strong>${correctAnswer}</strong></span>
-                                        <div style="font-size:12px; margin-top:5px; color:#666;">
-                                            正确选择了 ${score.correctSelected} 个，错误选择了 ${score.wrongSelected} 个，漏选了 ${score.missed} 个
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        resultPanel.className = 'result-panel result-wrong';
-                        resultPanel.innerHTML = `
-                            <div class="result-content">
-                                <div class="result-icon">✗</div>
-                                <div class="result-text">
-                                    <div class="result-title">🚨 回答错误</div>
-                                    <div class="result-details">
-                                        <span class="detail-item">你的选择：<strong>${userChoice}</strong></span>
-                                        <span class="detail-separator">|</span>
-                                        <span class="detail-item">正确答案：<strong>${correctAnswer}</strong></span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                } else {
-                    // 单选题/是非题结果
-                    var isCorrect = correctLetters.includes(userChoice);
-                    var resultClass = isCorrect ? 'result-correct' : 'result-wrong';
-                    var resultText = isCorrect ? '🎉 回答正确！' : '🚨 回答错误';
-                    
-                    resultPanel.className = 'result-panel ' + resultClass;
-                    resultPanel.innerHTML = `
-                        <div class="result-content">
-                            <div class="result-icon">${isCorrect ? '✓' : '✗'}</div>
-                            <div class="result-text">
-                                <div class="result-title">${resultText}</div>
-                                <div class="result-details">
-                                    <span class="detail-item">你的选择：<strong>${userChoice}</strong></span>
-                                    <span class="detail-separator">|</span>
-                                    <span class="detail-item">正确答案：<strong>${correctAnswer}</strong></span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-            } else {
-                // 没有检测到用户选择
-                resultPanel.className = 'result-panel result-nochoice';
-                resultPanel.innerHTML = `
-                    <div class="result-content">
-                        <div class="result-icon">?</div>
-                        <div class="result-text">
-                            <div class="result-title">未检测到选择</div>
-                            <div class="result-details">
-                                请在正面点击选择选项后查看答案
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-        
-        // ====== 新增：显示计时器数据 ======
-        displayTimeUsed();
-        updateExamCountdown();
-        showChoiceStats(); 
-    }
+function createQuestionTypeBadge(optionsCount) {
+    var isTF = isTrueFalseQuestion(optionsCount);
+    var isMultiple = isMultipleChoice(optionsCount);
     
-
-    // ====== 页面加载完成后执行 ======
-    (function() {
-    if (document.readyState === 'loading') {
-        // 页面还在加载，等待加载完成事件
-        document.addEventListener('DOMContentLoaded', displayOptionsWithResult);
+    var badgeText, badgeColor, badgeBgColor;
+    
+    if (isTF) {
+        badgeText = "是非题";
+        badgeColor = "#722ed1";
+        badgeBgColor = "#f9f0ff";
+    } else if (isMultiple) {
+        badgeText = "多选题";
+        badgeColor = "#ff6b00";
+        badgeBgColor = "#fff7e6";
     } else {
-        // 页面已经加载完毕，直接执行
-        displayOptionsWithResult();
+        badgeText = "单选题";
+        badgeColor = "#1890ff";
+        badgeBgColor = "#e6f7ff";
     }
-})();
+    
+    var badge = document.createElement('span');
+    badge.id = 'type-badge';
+    badge.style.cssText = `
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-right: 8px;
+        vertical-align: middle;
+        color: ${badgeColor};
+        background: ${badgeBgColor};
+        border: 1px solid ${badgeColor};
+    `;
+    badge.textContent = badgeText;
+    return badge;
+}
+
+// ====== 创建选框样式 ======
+function createRadioBox() {
+    var radio = document.createElement('div');
+    radio.className = 'option-indicator radio-box';
+    radio.innerHTML = `
+        <div class="radio-outer">
+            <div class="radio-inner"></div>
+        </div>
+    `;
+    return radio;
+}
+
+function createCheckbox() {
+    var checkbox = document.createElement('div');
+    checkbox.className = 'option-indicator checkbox-box';
+    checkbox.innerHTML = `
+        <div class="checkbox-outer">
+            <div class="checkmark">✓</div>
+        </div>
+    `;
+    return checkbox;
+}
+
+function createTrueFalseBox() {
+    var tfBox = document.createElement('div');
+    tfBox.className = 'option-indicator truefalse-box';
+    tfBox.innerHTML = `
+        <div class="tf-outer">
+            <div class="tf-inner"></div>
+        </div>
+    `;
+    return tfBox;
+}
+
+// ====== 显示可点击的选项 ======
+function displayClickableOptions() {
+    var container = document.getElementById('front-options');
+    if (!container) return;
+    
+    var parsed = parseOptionsText();
+    var options = parsed.options;
+    var optionsCount = parsed.count;
+    var isTF = isTrueFalseQuestion(optionsCount);
+    var isMultiple = isMultipleChoice(optionsCount);
+    
+    var badgeContainer = document.getElementById('question-type-badge');
+    if (badgeContainer) {
+        var badge = createQuestionTypeBadge(optionsCount);
+        badgeContainer.appendChild(badge);
+    }
+    
+    if (optionsCount === 0) {
+        container.innerHTML = `<div style="color:red;">无法解析选项</div>`;
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    options.forEach(function(option) {
+        var optionDiv = document.createElement('div');
+        optionDiv.className = 'option-item clickable-option';
+        optionDiv.dataset.letter = option.letter;
+        optionDiv.title = "选项 " + option.letter; // 添加悬停提示
+        
+        // 根据题型创建不同的选框
+        var indicator;
+        if (isTF) {
+            indicator = createTrueFalseBox();
+        } else if (isMultiple) {
+            indicator = createCheckbox();
+        } else {
+            indicator = createRadioBox();
+        }
+        
+        optionDiv.innerHTML = '';
+        optionDiv.appendChild(indicator);
+        
+        // 只添加选项文本，不显示字母
+        var textSpan = document.createElement('span');
+        textSpan.className = 'option-text';
+        textSpan.innerHTML = option.text;
+        optionDiv.appendChild(textSpan);
+        
+        // 添加点击事件
+        optionDiv.addEventListener('click', function() {
+            if (isMultiple) {
+                selectMultipleOption(option.letter);
+            } else {
+                selectSingleOption(option.letter);
+            }
+        });
+        
+        optionDiv.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            if (isMultiple) {
+                selectMultipleOption(option.letter);
+            } else {
+                selectSingleOption(option.letter);
+            }
+        });
+        
+        container.appendChild(optionDiv);
+    });
+}
+
+// ====== 选择逻辑 ======
+function selectSingleOption(letter) {
+    var container = document.getElementById('front-options');
+    if (!container) return;
+    
+    var allOptions = container.querySelectorAll('.clickable-option');
+    
+    // 移除所有选项的选中状态
+    allOptions.forEach(function(option) {
+        option.classList.remove('selected');
+        var indicator = option.querySelector('.option-indicator');
+        if (indicator) {
+            indicator.classList.remove('selected');
+        }
+    });
+    
+    // 选中当前选项
+    var selectedElement = document.querySelector(`.clickable-option[data-letter="${letter}"]`);
+    if (selectedElement) {
+        selectedElement.classList.add('selected');
+        var indicator = selectedElement.querySelector('.option-indicator');
+        if (indicator) {
+            indicator.classList.add('selected');
+        }
+        userChoices = [letter];
+        
+        // 保存到sessionStorage
+        try {
+            sessionStorage.setItem('anki_choice', letter);
+            var elapsedSeconds = Math.floor((Date.now() - questionStartTime) / 1000);
+            sessionStorage.setItem('question_time', elapsedSeconds);
+        } catch(e) {}
+    }
+}
+
+function selectMultipleOption(letter) {
+    var selectedElement = document.querySelector(`.clickable-option[data-letter="${letter}"]`);
+    if (selectedElement) {
+        var isSelected = selectedElement.classList.contains('selected');
+        
+        if (isSelected) {
+            // 取消选择
+            selectedElement.classList.remove('selected');
+            var indicator = selectedElement.querySelector('.option-indicator');
+            if (indicator) {
+                indicator.classList.remove('selected');
+            }
+            
+            var index = userChoices.indexOf(letter);
+            if (index > -1) userChoices.splice(index, 1);
+        } else {
+            // 选择
+            selectedElement.classList.add('selected');
+            var indicator = selectedElement.querySelector('.option-indicator');
+            if (indicator) {
+                indicator.classList.add('selected');
+            }
+            userChoices.push(letter);
+        }
+        
+        // 保存到sessionStorage
+        try {
+            sessionStorage.setItem('anki_choice', userChoices.sort().join(''));
+            var elapsedSeconds = Math.floor((Date.now() - questionStartTime) / 1000);
+            sessionStorage.setItem('question_time', elapsedSeconds);
+        } catch(e) {}
+    }
+}
+
+// ====== 页面加载 ======
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        displayClickableOptions();
+        initTimers(); // 初始化计时器
+        
+        // 恢复之前的选择
+        try {
+            var savedChoice = sessionStorage.getItem('anki_choice');
+            if (savedChoice) {
+                var parsed = parseOptionsText();
+                var optionsCount = parsed.count;
+                var isMultiple = isMultipleChoice(optionsCount);
+                
+                if (isMultiple) {
+                    userChoices = savedChoice.split('');
+                    userChoices.forEach(function(letter) {
+                        var option = document.querySelector(`.clickable-option[data-letter="${letter}"]`);
+                        if (option) {
+                            option.classList.add('selected');
+                            var indicator = option.querySelector('.option-indicator');
+                            if (indicator) {
+                                indicator.classList.add('selected');
+                            }
+                        }
+                    });
+                } else {
+                    setTimeout(function() { 
+                        selectSingleOption(savedChoice); 
+                    }, 100);
+                }
+            }
+        } catch(e) {}
+    });
+} else {
+    displayClickableOptions();
+    initTimers();
+}
 </script>
 
 <!-- ========== 选择题自动翻转功能（仅桌面端有效） ========== -->
@@ -12777,7 +12683,7 @@ document.addEventListener('keydown', function(e) {
 <!-- ========== 初始化执行 ========== -->
 <script>
 // 1. 大纲系统
-//convertTitlesToDetails();
+convertTitlesToDetails();
 setupNodeEvents();
 
 // 2. 挖空系统
