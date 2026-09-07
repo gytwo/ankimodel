@@ -1,8 +1,8 @@
 <!-- ============================================
-    最新这是Anki卡片基本模板（文本系统）
+    Anki卡片基本模板（文本系统）
     功能：anki原生cloze(多卡多空)、划线挖空（单卡多空）、大纲伸缩、卡片链接、卡内搜索、智能定位、弹窗管理、word注释/引用处理
     ============================================ -->
-
+  
 <!-- ========== 控制按钮 ========== -->
 <div class="popup-badges-container">
 
@@ -53,6 +53,7 @@
     {{#资料}}<div class="popup-container" id="reference-popup"><div class="popup-header"><div class="popup-title"><span class="popup-title-icon">🗂️</span><span class="popup-title-text">参考资料</span></div><button class="popup-close" id="reference-close">×</button></div><div class="popup-content area linkRender">{{资料}}</div></div> {{/资料}}
     {{#笔记}}<div class="popup-container" id="note-popup"><div class="popup-header"><div class="popup-title"><span class="popup-title-icon">✏️</span><span class="popup-title-text">手写笔记</span></div><button class="popup-close" id="note-close">×</button></div><div class="popup-content area linkRender">{{笔记}}</div></div> {{/笔记}}
     {{#归纳}}<div class="popup-container" id="conclude-popup"><div class="popup-header"><div class="popup-title"><span class="popup-title-icon">🧠</span><span class="popup-title-text">表格归纳</span></div><button class="popup-close" id="conclude-close">×</button></div><div class="popup-content area linkRender">{{归纳}}</div></div> {{/归纳}}
+
 
 <!-- ========== 搜索区域 ========== -->
     <div class="search-box" id="searchBox">
@@ -1398,10 +1399,10 @@ $(document).ready(function() {
 
 <!--==========六、移动端实现卡片间链接==========-->
 <script>
-    var disableLinks = false;
+    var disableLinks = false; // Change to true if you want to disable all link rendering for clients without add-on
     if (!window.AnkiNoteLinkerIsActive) {
         const renderLinks = _ => {
-            document.querySelectorAll('.linkRender').forEach(element => {
+            document.querySelectorAll('.linkRender').forEach(element => { // You can rename "linkRender" on this line, but leave the "." in front
                 element.innerHTML = element.innerHTML.replace(
                     /\[((?:[^\[]|\\\[)*)\|nid(\d{13})\]/g,
                     (match, title, nid) => {
@@ -6002,6 +6003,7 @@ bindMarkEvents(markElement, type) {
 window.NoteMarkSystemClass = NoteMarkSystem;
 window.NoteMarkUtils = { showMessage: showMessage, escapeHtml: escapeHtml };
 </script>
+
 
 
 
