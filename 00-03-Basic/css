@@ -452,7 +452,7 @@ html.theme-yase {
       text-align: left;
       background-color: var(--card-bg);
       padding: 2rem 1.5rem 1rem 0.5rem; /* 上右下左*/
-    //  padding: 2.5rem 3rem;
+    //  padding: 2.5rem 2rem;
     //  box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
   }
      .special {
@@ -1229,10 +1229,10 @@ cloze2_w.reveal-cloze2:not(.cloze cloze2_w)::before {
     transform: translate(-50%, -50%);
     background: white;
     border-radius: 10px;
-    width: 500px;
-    height: 500px;
-    max-width: 95vw;
-    max-height: 95vh;
+    width: 90%;  //500px
+    height: 60%;  //500px
+    max-width: 90vw;
+    max-height: 80vh;
     overflow: auto;
     display: flex;
     flex-direction: column;
