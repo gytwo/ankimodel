@@ -12163,6 +12163,7 @@ convertClozeAttributes(); // 处理cloze属性
 optimizeClozeElements();
 clozeGroups = getAllClozeGroups();
 updateNextClozeButtonText();
+showAllCloze();
 
 // 5. 定位功能
 setTimeout(() => {
